@@ -35,14 +35,17 @@ fmt.Println(res[0].Value())
 ```go
 format := "水樹素子「%s」。秋穂伊織「%s」"
 str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
-expected1 := "今日は天気が悪いね"
-expected2 := "そうだね"
 res, _ := goparse.Parse(format,str)
 fmt.Println(res[0].Value())
+fmt.Println(res[0].Kind().String())
 fmt.Println(res[1].Value())
+fmt.Println(res[0].Kind().String())
 // Output:
 // 今日は天気が悪いね
+// string
 // そうだね
+// string
+}
 ```
 
 ### Base10 integer
@@ -51,8 +54,10 @@ format := "Hello my number is %d"
 expected := 100
 res, _ := goparse.Parse(format, fmt.Sprintf(format, expected))
 fmt.Println(res[0].Value())
+fmt.Println(res[0].Kind())
 // Output:
-// 100
+// 101
+// int
 ```
 
 ### Base8 integer

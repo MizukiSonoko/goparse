@@ -507,10 +507,14 @@ func ExampleParse_ja() {
 	str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
 	res, _ := goparse.Parse(format, str)
 	fmt.Println(res[0].Value())
+	fmt.Println(res[0].Kind().String())
 	fmt.Println(res[1].Value())
+	fmt.Println(res[0].Kind().String())
 	// Output:
 	// 今日は天気が悪いね
+	// string
 	// そうだね
+	// string
 }
 
 func ExampleParse_number() {
@@ -518,8 +522,10 @@ func ExampleParse_number() {
 	str := "Room 101"
 	res, _ := goparse.Parse(format, str)
 	fmt.Println(res[0].Value())
+	fmt.Println(res[0].Kind())
 	// Output:
 	// 101
+	// int
 }
 
 func ExampleParse_boolean() {
