@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"reflect"
+	"strconv"
 	"strings"
 )
 
@@ -48,6 +49,19 @@ func parseString(format, str string) (string, error) {
 	return str[:i], nil
 }
 
+func parseInteger(format, str string) (int, error) {
+	s, err := parseString(format, str)
+	if err != nil {
+		return 0, errors.Wrapf(err, "parseString(%s,%s) failed",
+			format, str)
+	}
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, errors.Wrapf(err, "Atoi(%s) failed", s)
+	}
+	return i, nil
+}
+
 // Parse parse str uses format
 func Parse(format, str string) ([]Result, error) {
 	var res []Result
@@ -55,10 +69,9 @@ func Parse(format, str string) ([]Result, error) {
 	strOffset := 0
 
 	for i := 0; i < end; {
-
 		if format[i] != '%' && format[i] != str[strOffset+i] {
-			return res, fmt.Errorf("invalid string (%s). expect %c but it is %c",
-				str, format[i], str[strOffset+i])
+			return res, fmt.Errorf("invalid string (%s) with (%s). expect %c but it is %c",
+				str, format, format[i], str[strOffset+i])
 		}
 
 		if format[i] == '%' {
@@ -76,12 +89,22 @@ func Parse(format, str string) ([]Result, error) {
 					res = append(res, Result{reflect.String, s})
 					i += 2
 					goto formatLoop
+				case 'd':
+					// first arguments except format
+					n, err := parseInteger(format[i+1:], str[strOffset+i-1:])
+					if err != nil {
+						return res, errors.Wrapf(err, "parseInteger(%s,%s) failed",
+							format[i:], str[strOffset+i-1:])
+					}
+					strOffset += len(strconv.Itoa(n)) - 2
+					res = append(res, Result{reflect.Int, n})
+					i += 2
+					goto formatLoop
 				}
 			}
 		}
 		i++
 	formatLoop:
-
 	}
 	return res, nil
 }

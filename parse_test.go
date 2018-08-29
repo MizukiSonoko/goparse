@@ -11,6 +11,13 @@ import (
 	"testing"
 )
 
+func checkTestCase(t *testing.T, expected, format string, str ...interface{}) {
+	if expected != fmt.Sprintf(format, str...) {
+		panic(
+			"Invalid test case. expected by test = '" + expected + "' want '" + fmt.Sprintf(format, str...) + "'")
+	}
+}
+
 func TestParseString(t *testing.T) {
 
 	t.Run("Normal case", func(t *testing.T) {
@@ -87,20 +94,18 @@ func TestParseString(t *testing.T) {
 
 func TestParse(t *testing.T) {
 
-	t.Run("No match", func(t *testing.T) {
-		format := "Hello"
-		str := "noHello"
-		_, err := goparse.Parse(format, str)
-		assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
-		assert.Contains(t, err.Error(), "invalid string")
+	t.Run("the mix of %s and %d", func(t *testing.T) {
+		format := "Hello %s, my number is %d"
+		str := "Hello iorin, my number is 9753"
+		expected1 := "iorin"
+		expected2 := 9753
+		res, _ := goparse.Parse(format, str)
+		assert.Equal(t, expected1, res[0].Value())
+		assert.Equal(t, expected2, res[1].Value())
 	})
+}
 
-	checkTestCase := func(t *testing.T, expected, format string, str ...interface{}) {
-		if expected != fmt.Sprintf(format, str...) {
-			panic(
-				"Invalid test case. expected by test = '" + expected + "' want '" + fmt.Sprintf(format, str...) + "'")
-		}
-	}
+func TestParse_string(t *testing.T) {
 
 	checkString := func(t *testing.T, expected string, actual goparse.Result) {
 		if reflect.String != actual.Kind() {
@@ -139,27 +144,27 @@ func TestParse(t *testing.T) {
 	})
 
 	t.Run("format has one %s", func(t *testing.T) {
-		for _, tt := range []struct{
-			format string
-			str string
+		for _, tt := range []struct {
+			format   string
+			str      string
 			expected string
 		}{
 			{
-				format:"Good_%s_",
-				str:"Good_Morning_",
-				expected:"Morning",
+				format:   "Good_%s_",
+				str:      "Good_Morning_",
+				expected: "Morning",
 			},
 			{
-				format: "Hello%sMosaic",
-				str: "HelloGoldenMosaic",
-				expected : "Golden",
+				format:   "Hello%sMosaic",
+				str:      "HelloGoldenMosaic",
+				expected: "Golden",
 			},
 			{
-				format : "%ssonoko",
-				str : "ssssonoko",
-				expected : "sss",
+				format:   "%ssonoko",
+				str:      "ssssonoko",
+				expected: "sss",
 			},
-		}{
+		} {
 			t.Logf("test case: Parse(%s,%s) failed", tt.format, tt.str)
 			checkTestCase(t, tt.str, tt.format, tt.expected)
 			res, err := goparse.Parse(tt.format, tt.str)
@@ -169,6 +174,19 @@ func TestParse(t *testing.T) {
 			}
 			checkString(t, tt.expected, res[0])
 		}
+	})
+
+	t.Run("format contains Number", func(t *testing.T) {
+		format := "12%s90"
+		str := "1234567890"
+		expected := "345678"
+		checkTestCase(t, str, format, expected)
+		res, err := goparse.Parse(format, str)
+		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
+		if len(res) != 1 {
+			t.Errorf("len(res) = <%d> want <1>", len(res))
+		}
+		checkString(t, expected, res[0])
 	})
 
 	t.Run("format contains 日本語", func(t *testing.T) {
@@ -185,6 +203,21 @@ func TestParse(t *testing.T) {
 	})
 
 	t.Run("format contains 日本語 part 2", func(t *testing.T) {
+		format := "み%sっ%sのこ"
+		str := "みかんとずっきーにときのこ"
+		expected1 := "かんとず"
+		expected2 := "きーにとき"
+		checkTestCase(t, str, format, expected1, expected2)
+		res, err := goparse.Parse(format, str)
+		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
+		if len(res) != 2 {
+			t.Errorf("len(res) = <%d> want <2>", len(res))
+		}
+		checkString(t, expected1, res[0])
+		checkString(t, expected2, res[1])
+	})
+
+	t.Run("format contains 日本語 part 3", func(t *testing.T) {
 		format := "水樹素子「%s」。秋穂伊織「%s」"
 		str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
 		expected1 := "今日は天気が悪いね"
@@ -265,6 +298,75 @@ func TestParse(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("Invalid argumetns", func(t *testing.T) {
+		t.Run("No match", func(t *testing.T) {
+			format := "Hello"
+			str := "noHello"
+			_, err := goparse.Parse(format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+			assert.Contains(t, err.Error(), "invalid string")
+		})
+
+		t.Run("a cuple of %s", func(t *testing.T) {
+			format := "%s%s%s"
+			str := "Hello"
+			_, err := goparse.Parse(format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+			assert.Contains(t, err.Error(), "invalid string")
+		})
+
+		t.Run("different number of %s from str", func(t *testing.T) {
+			format := "%s_%s_%s"
+			str := "H_He"
+			_, err := goparse.Parse(format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+			assert.Contains(t, err.Error(), "parseString")
+		})
+	})
+}
+
+func TestParse_integer(t *testing.T) {
+
+	checkInt := func(t *testing.T, expected int, actual goparse.Result) {
+		if reflect.Int != actual.Kind() {
+			t.Errorf("Kind = <%d> want <%d>", actual.Kind(), reflect.Int)
+			return
+		}
+		if reflect.TypeOf(int(0)) != reflect.TypeOf(actual.Value()) {
+			t.Errorf("type(res[0].Value) = <%v> want <%v>",
+				reflect.TypeOf(actual.Value()), reflect.TypeOf(int(0)))
+			return
+		}
+		if expected != actual.Value().(int) {
+			t.Errorf("res[0].Value = <%d> want <%d>",
+				actual.Value().(int), expected)
+		}
+	}
+
+	t.Run("The opposite of Sprintf", func(t *testing.T) {
+		format := "Hello my number is %d"
+		expected := 100
+		res, err := goparse.Parse(format, fmt.Sprintf(format, expected))
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res[0].Value())
+	})
+
+	t.Run("text contains multiple %d", func(t *testing.T) {
+		format := "1%d456%d89"
+		str := "123456789"
+		expected1 := 23
+		expected2 := 7
+		checkTestCase(t, str, format, expected1, expected2)
+		res, err := goparse.Parse(format, str)
+		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
+		if len(res) != 2 {
+			t.Fatalf("len(res) = <%d> want <2>", len(res))
+		}
+		checkInt(t, expected1, res[0])
+		checkInt(t, expected2, res[1])
+	})
+
 }
 
 func ExampleParse() {
@@ -277,7 +379,7 @@ func ExampleParse() {
 func ExampleParse_ja() {
 	format := "水樹素子「%s」。秋穂伊織「%s」"
 	str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
-	res, _ := goparse.Parse(format,str)
+	res, _ := goparse.Parse(format, str)
 	fmt.Println(res[0].Value())
 	fmt.Println(res[1].Value())
 	// Output:
