@@ -13,14 +13,26 @@ This library is inspired by [r1chardj0n3s/parse](https://github.com/r1chardj0n3s
 ```go
 res, err := goparse.Parse("Hello %s", "Hello World")
 fmt.Println(res[0].Value())
-// 'World'
+// Output:
+// World
 ```
 
 ```go
 format := "Hello %s"
 expected := "World"
 res, _ := goparse.Parse(format,fmt.Sprintf(format,expected))
-assert.Equal(t,expected,res[0].Value())
+fmt.Println(res[0].Value())
+// Output:
+// World
+```
+
+```go
+format := "Hello my number is %d"
+expected := 100
+res, _ := goparse.Parse(format, fmt.Sprintf(format, expected))
+fmt.Println(res[0].Value())
+// Output:
+// 100
 ```
 
 ```go
@@ -29,8 +41,11 @@ str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだ
 expected1 := "今日は天気が悪いね"
 expected2 := "そうだね"
 res, _ := goparse.Parse(format,str)
-assert.Equal(t,expected1,res[0].Value())
-assert.Equal(t,expected2,res[1].Value())
+fmt.Println(res[0].Value())
+fmt.Println(res[1].Value())
+// Output:
+// 今日は天気が悪いね
+// そうだね
 ```
 
 ## Installation

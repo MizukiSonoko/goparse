@@ -367,6 +367,16 @@ func TestParse_integer(t *testing.T) {
 		checkInt(t, expected2, res[1])
 	})
 
+	t.Run("invalid argument", func(t *testing.T) {
+		t.Run("not number", func(t *testing.T) {
+			format := "%d"
+			str := "ss"
+			_, err := goparse.Parse(format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+			assert.Contains(t, err.Error(), "strconv.Atoi")
+		})
+	})
+
 }
 
 func ExampleParse() {
@@ -385,4 +395,22 @@ func ExampleParse_ja() {
 	// Output:
 	// 今日は天気が悪いね
 	// そうだね
+}
+
+func ExampleParse_number() {
+	format := "Room %d"
+	str := "Room 101"
+	res, _ := goparse.Parse(format, str)
+	fmt.Println(res[0].Value())
+	// Output:
+	// 101
+}
+
+func ExampleParse_ja_number() {
+	format := "塩ラーメン ￥%d円"
+	str := "塩ラーメン ￥409円"
+	res, _ := goparse.Parse(format, str)
+	fmt.Println(res[0].Value())
+	// Output:
+	// 409
 }
