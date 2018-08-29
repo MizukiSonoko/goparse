@@ -8,8 +8,13 @@ jobs:
     steps:
 
       - run:
+          name: install clang
+          command: sudo apt install clang
+
+      - run:
           name: install vgo
           command: go get -u golang.org/x/vgo
+
       - run:
           name: install megacheck
           command: go get honnef.co/go/tools/cmd/megacheck

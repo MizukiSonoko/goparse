@@ -4,7 +4,7 @@ package goparse_test
 
 import (
 	"fmt"
-	"github.com/MizukiSonoko/goparse"
+	"github.com/MizukiSonoko/goparse/parse"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"strings"
