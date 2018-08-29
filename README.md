@@ -36,7 +36,6 @@ go get github.com/MizukiSonoko/goparse
 ## ToDo
 
 - [x] support string `%s`
-- [ ] support bool `%b`
 - [ ] support integer `%b,%d,%o,...`
 - [ ] support float `%f,%e,...`
 - [ ] other flag `+`, `#`
