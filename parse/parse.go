@@ -62,6 +62,19 @@ func parseInteger(format, str string) (int, error) {
 	return i, nil
 }
 
+func parseBool(format, str string) (bool, error) {
+	s, err := parseString(format, str)
+	if err != nil {
+		return false, errors.Wrapf(err, "parseString(%s,%s) failed",
+			format, str)
+	}
+	b, err := strconv.ParseBool(s)
+	if err != nil {
+		return false, errors.Wrapf(err, "ParseBool(%s) failed", s)
+	}
+	return b, nil
+}
+
 // Parse parse str uses format
 func Parse(format, str string) ([]Result, error) {
 	var res []Result
@@ -98,6 +111,17 @@ func Parse(format, str string) ([]Result, error) {
 					}
 					strOffset += len(strconv.Itoa(n)) - 2
 					res = append(res, Result{reflect.Int, n})
+					i += 2
+					goto formatLoop
+				case 't':
+					// first arguments except format
+					b, err := parseBool(format[i+1:], str[strOffset+i-1:])
+					if err != nil {
+						return res, errors.Wrapf(err, "parseInteger(%s,%s) failed",
+							format[i:], str[strOffset+i-1:])
+					}
+					strOffset += len(strconv.FormatBool(b)) - 2
+					res = append(res, Result{reflect.Bool, b})
 					i += 2
 					goto formatLoop
 				}

@@ -75,7 +75,7 @@ Cite by https://golang.org/pkg/fmt/
 
 ### Boolean:
 ```
-[A] %t	the word true or false
+[o] %t	the word true or false
 ```
 
 ### Integer:

@@ -388,6 +388,67 @@ func TestParse_integer(t *testing.T) {
 
 }
 
+func TestParse_boolean(t *testing.T) {
+
+	checkBoolean := func(t *testing.T, expected bool, actual goparse.Result) {
+		if reflect.Bool != actual.Kind() {
+			t.Errorf("Kind = <%d> want <%d>", actual.Kind(), reflect.Bool)
+			return
+		}
+		if reflect.TypeOf(false) != reflect.TypeOf(actual.Value()) {
+			t.Errorf("type(res[0].Value) = <%v> want <%v>",
+				reflect.TypeOf(actual.Value()), reflect.TypeOf(false))
+			return
+		}
+		if expected != actual.Value().(bool) {
+			t.Errorf("res[0].Value = <%t> want <%t>",
+				actual.Value().(bool), expected)
+		}
+	}
+
+	t.Run("The opposite of Sprintf", func(t *testing.T) {
+		format := "Hello my number is %t"
+		expected := true
+		res, err := goparse.Parse(format, fmt.Sprintf(format, expected))
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res[0].Value())
+	})
+
+	t.Run("text contains multiple %d", func(t *testing.T) {
+		format := "Ah%t_Oh%t_Uu%t"
+		str := "Ahtrue_Ohfalse_Uutrue"
+		checkTestCase(t, str, format, true, false, true)
+		res, err := goparse.Parse(format, str)
+		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
+		if len(res) != 3 {
+			t.Fatalf("len(res) = <%d> want <3>", len(res))
+		}
+		checkBoolean(t, true, res[0])
+		checkBoolean(t, false, res[1])
+		checkBoolean(t, true, res[2])
+	})
+
+	t.Run("invalid argument", func(t *testing.T) {
+		t.Run("not boolean", func(t *testing.T) {
+			format := "%t"
+			str := "ss"
+			_, err := goparse.Parse(format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+			assert.Contains(t, err.Error(), "ParseBool")
+		})
+
+		t.Run("empty format", func(t *testing.T) {
+			format := "%t"
+			str := ""
+			_, err := goparse.Parse(format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+			assert.Contains(t, err.Error(), "ParseBool")
+		})
+
+	})
+
+}
+
 func ExampleParse() {
 	res, _ := goparse.Parse("Hello %s", "Hello World")
 	fmt.Println(res[0].Value())
@@ -413,6 +474,17 @@ func ExampleParse_number() {
 	fmt.Println(res[0].Value())
 	// Output:
 	// 101
+}
+
+func ExampleParse_boolean() {
+	format := "I can't tell whether it is %t or %t"
+	str := "I can't tell whether it is false or true"
+	res, _ := goparse.Parse(format, str)
+	fmt.Println(res[0].Value())
+	fmt.Println(res[1].Value())
+	// Output:
+	// false
+	// true
 }
 
 func ExampleParse_ja_number() {
