@@ -541,3 +541,12 @@ func ExampleParse_ja_number() {
 	// Output:
 	// 409
 }
+
+func ExampleParse_ja_number8() {
+	format := "Hello my number is %o"
+	expected := 123
+	res, _ := goparse.Parse(format, fmt.Sprintf(format, expected))
+	fmt.Println(res[0].Value())
+	// Output:
+	// 123
+}

@@ -19,6 +19,9 @@ fmt.Println(res[0].Value())
 // World
 ```
 
+## Example
+
+### Single string
 ```go
 format := "Hello %s"
 expected := "World"
@@ -28,15 +31,7 @@ fmt.Println(res[0].Value())
 // World
 ```
 
-```go
-format := "Hello my number is %d"
-expected := 100
-res, _ := goparse.Parse(format, fmt.Sprintf(format, expected))
-fmt.Println(res[0].Value())
-// Output:
-// 100
-```
-
+### Multiple string
 ```go
 format := "水樹素子「%s」。秋穂伊織「%s」"
 str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
@@ -48,6 +43,38 @@ fmt.Println(res[1].Value())
 // Output:
 // 今日は天気が悪いね
 // そうだね
+```
+
+### Base10 integer
+```go
+format := "Hello my number is %d"
+expected := 100
+res, _ := goparse.Parse(format, fmt.Sprintf(format, expected))
+fmt.Println(res[0].Value())
+// Output:
+// 100
+```
+
+### Base8 integer
+```go
+format := "Hello my number is %o"
+expected := 123
+res, _ := goparse.Parse(format, fmt.Sprintf(format, expected))
+fmt.Println(res[0].Value())
+// Output:
+// 123
+```
+
+### Boolean
+```go
+format := "I can't tell whether it is %t or %t"
+str := "I can't tell whether it is false or true"
+res, _ := goparse.Parse(format, str)
+fmt.Println(res[0].Value())
+fmt.Println(res[1].Value())
+// Output:
+// false
+// true
 ```
 
 ## Installation
