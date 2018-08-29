@@ -1,6 +1,8 @@
 
 ## Goparse 
 
+[![CircleCI](https://circleci.com/gh/MizukiSonoko/goparse.svg?style=shield)](https://circleci.com/gh/MizukiSonoko/goparse)
+[![codecov](https://codecov.io/gh/MizukiSonoko/goparse/branch/master/graph/badge.svg)](https://codecov.io/gh/MizukiSonoko/goparse)
 [![Go Report Card](https://goreportcard.com/badge/github.com/MizukiSonoko/goparse)](https://goreportcard.com/report/github.com/MizukiSonoko/goparse)
 [![MIT licensed](https://img.shields.io/packagist/l/doctrine/orm.svg)](https://github.com/MizukiSonoko/goparse/blob/master/LICENSE)
 [![Godoc](https://godoc.org/github.com/MizukiSonoko/goparse?status.svg)](https://godoc.org/github.com/MizukiSonoko/goparse)

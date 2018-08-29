@@ -375,6 +375,15 @@ func TestParse_integer(t *testing.T) {
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
 			assert.Contains(t, err.Error(), "strconv.Atoi")
 		})
+
+		t.Run("empty format", func(t *testing.T) {
+			format := "%d"
+			str := ""
+			_, err := goparse.Parse(format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+			assert.Contains(t, err.Error(), "strconv.Atoi")
+		})
+
 	})
 
 }
