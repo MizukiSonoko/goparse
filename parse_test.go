@@ -138,6 +138,39 @@ func TestParse(t *testing.T) {
 		checkString(t, expected, res[0])
 	})
 
+	t.Run("format has one %s", func(t *testing.T) {
+		for _, tt := range []struct{
+			format string
+			str string
+			expected string
+		}{
+			{
+				format:"Good_%s_",
+				str:"Good_Morning_",
+				expected:"Morning",
+			},
+			{
+				format: "Hello%sMosaic",
+				str: "HelloGoldenMosaic",
+				expected : "Golden",
+			},
+			{
+				format : "%ssonoko",
+				str : "ssssonoko",
+				expected : "sss",
+			},
+		}{
+			t.Logf("test case: Parse(%s,%s) failed", tt.format, tt.str)
+			checkTestCase(t, tt.str, tt.format, tt.expected)
+			res, err := goparse.Parse(tt.format, tt.str)
+			assert.NoErrorf(t, err, "Parse(%s,%s) failed", tt.format, tt.str)
+			if len(res) != 1 {
+				t.Errorf("len(res) = <%d> want <1>", len(res))
+			}
+			checkString(t, tt.expected, res[0])
+		}
+	})
+
 	t.Run("format contains 日本語", func(t *testing.T) {
 		format := "Hello %s"
 		str := "Hello こんにちは"
@@ -164,45 +197,6 @@ func TestParse(t *testing.T) {
 		}
 		checkString(t, expected1, res[0])
 		checkString(t, expected2, res[1])
-	})
-
-	t.Run("format is splitted by under-bar", func(t *testing.T) {
-		format := "Good_%s_"
-		str := "Good_Morning_"
-		expected := "Morning"
-		checkTestCase(t, str, format, expected)
-		res, err := goparse.Parse(format, str)
-		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
-		if len(res) != 1 {
-			t.Errorf("len(res) = <%d> want <1>", len(res))
-		}
-		checkString(t, expected, res[0])
-	})
-
-	t.Run("format is not splitted", func(t *testing.T) {
-		format := "Hello%sMosaic"
-		str := "HelloGoldenMosaic"
-		expected := "Golden"
-		checkTestCase(t, str, format, expected)
-		res, err := goparse.Parse(format, str)
-		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
-		if len(res) != 1 {
-			t.Errorf("len(res) = <%d> want <1>", len(res))
-		}
-		checkString(t, expected, res[0])
-	})
-
-	t.Run("str contains ssss", func(t *testing.T) {
-		format := "%ssonoko"
-		str := "ssssonoko"
-		expected := "sss"
-		checkTestCase(t, str, format, expected)
-		res, err := goparse.Parse(format, str)
-		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
-		if len(res) != 1 {
-			t.Fatalf("len(res) = <%d> want <1>", len(res))
-		}
-		checkString(t, expected, res[0])
 	})
 
 	t.Run("text contains multiple %s", func(t *testing.T) {
@@ -271,4 +265,22 @@ func TestParse(t *testing.T) {
 			}
 		}
 	})
+}
+
+func ExampleParse() {
+	res, _ := goparse.Parse("Hello %s", "Hello World")
+	fmt.Println(res[0].Value())
+	// Output:
+	// World
+}
+
+func ExampleParse_ja() {
+	format := "水樹素子「%s」。秋穂伊織「%s」"
+	str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
+	res, _ := goparse.Parse(format,str)
+	fmt.Println(res[0].Value())
+	fmt.Println(res[1].Value())
+	// Output:
+	// 今日は天気が悪いね
+	// そうだね
 }

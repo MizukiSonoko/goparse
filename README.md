@@ -5,7 +5,7 @@ This library is inspired by [r1chardj0n3s/parse](https://github.com/r1chardj0n3s
 > Parse() is the opposite of fmt.Sprintf()
 
 ```go
-res, err := parse.Parse("Hello %s", "Hello World")
+res, err := goparse.Parse("Hello %s", "Hello World")
 fmt.Println(res[0].Value())
 // 'World'
 ```

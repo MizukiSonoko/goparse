@@ -9,15 +9,19 @@ import (
 	"strings"
 )
 
+// A Result is returned by Parse
+// It has kind like string, int,..., and value
 type Result struct {
 	kind  reflect.Kind
 	value interface{}
 }
 
+// Kind returns a type of value. string, int, ...
 func (r Result) Kind() reflect.Kind {
 	return r.kind
 }
 
+// Value returns a value as interface
 func (r Result) Value() interface{} {
 	return r.value
 }
@@ -44,6 +48,7 @@ func parseString(format, str string) (string, error) {
 	return str[:i], nil
 }
 
+// Parse parse str uses format
 func Parse(format, str string) ([]Result, error) {
 	var res []Result
 	end := len(format)
