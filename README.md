@@ -5,7 +5,7 @@
 [![codecov](https://codecov.io/gh/MizukiSonoko/goparse/branch/master/graph/badge.svg)](https://codecov.io/gh/MizukiSonoko/goparse)
 [![Go Report Card](https://goreportcard.com/badge/github.com/MizukiSonoko/goparse)](https://goreportcard.com/report/github.com/MizukiSonoko/goparse)
 [![MIT licensed](https://img.shields.io/packagist/l/doctrine/orm.svg)](https://github.com/MizukiSonoko/goparse/blob/master/LICENSE)
-[![Godoc](https://godoc.org/github.com/MizukiSonoko/goparse?status.svg)](https://godoc.org/github.com/MizukiSonoko/goparse)
+[![Godoc](https://godoc.org/github.com/MizukiSonoko/goparse/parse?status.svg)](https://godoc.org/github.com/MizukiSonoko/goparse/parse)
   
   
 This library is inspired by [r1chardj0n3s/parse](https://github.com/r1chardj0n3s/parse) in Python
