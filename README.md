@@ -83,7 +83,7 @@ Cite by https://golang.org/pkg/fmt/
 [ ] %b	base 2
 [ ] %c	the character represented by the corresponding Unicode code point
 [o] %d	base 10
-[ ] %o	base 8
+[o] %o	base 8
 [ ] %q	a single-quoted character literal safely escaped with Go syntax.
 [ ] %x	base 16, with lower-case letters for a-f
 [ ] %X	base 16, with upper-case letters for A-F

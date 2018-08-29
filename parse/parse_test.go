@@ -373,7 +373,7 @@ func TestParse_integer(t *testing.T) {
 			str := "ss"
 			_, err := goparse.Parse(format, str)
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
-			assert.Contains(t, err.Error(), "strconv.Atoi")
+			assert.Contains(t, err.Error(), "strconv.ParseInt")
 		})
 
 		t.Run("empty format", func(t *testing.T) {
@@ -381,7 +381,53 @@ func TestParse_integer(t *testing.T) {
 			str := ""
 			_, err := goparse.Parse(format, str)
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
-			assert.Contains(t, err.Error(), "strconv.Atoi")
+			assert.Contains(t, err.Error(), "strconv.ParseInt")
+		})
+
+	})
+
+}
+
+func TestParse_integer_base8(t *testing.T) {
+
+	t.Run("The opposite of Sprintf", func(t *testing.T) {
+		t.Run("case1", func(t *testing.T) {
+			format := "Hello my number is %o"
+			expected := 123
+			res, err := goparse.Parse(format, fmt.Sprintf(format, expected))
+			assert.NoError(t, err)
+			assert.Equal(t, expected, res[0].Value())
+		})
+
+		t.Run("case2 multiple", func(t *testing.T) {
+			format := "%o %o %o"
+			expected1 := 123
+			expected2 := 456
+			expected3 := 135
+			res, err := goparse.Parse(format, fmt.Sprintf(format, expected1, expected2, expected3))
+			assert.NoError(t, err)
+			assert.Equal(t, expected1, res[0].Value())
+			assert.Equal(t, expected2, res[1].Value())
+			assert.Equal(t, expected3, res[2].Value())
+		})
+
+	})
+
+	t.Run("invalid argument", func(t *testing.T) {
+		t.Run("not number", func(t *testing.T) {
+			format := "%o"
+			str := "ss"
+			_, err := goparse.Parse(format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+			assert.Contains(t, err.Error(), "strconv.ParseInt")
+		})
+
+		t.Run("empty format", func(t *testing.T) {
+			format := "%o"
+			str := ""
+			_, err := goparse.Parse(format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+			assert.Contains(t, err.Error(), "strconv.ParseInt")
 		})
 
 	})

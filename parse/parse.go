@@ -49,17 +49,18 @@ func parseString(format, str string) (string, error) {
 	return str[:i], nil
 }
 
-func parseInteger(format, str string) (int, error) {
+func parseInteger(format, str string, base int) (int, error) {
 	s, err := parseString(format, str)
 	if err != nil {
 		return 0, errors.Wrapf(err, "parseString(%s,%s) failed",
 			format, str)
 	}
-	i, err := strconv.Atoi(s)
+	// ToDo We should think about int64
+	i, err := strconv.ParseInt(s, base, 0)
 	if err != nil {
-		return 0, errors.Wrapf(err, "Atoi(%s) failed", s)
+		return 0, errors.Wrapf(err, "ParseInt(%s,%d) failed", s, base)
 	}
-	return i, nil
+	return int(i), nil
 }
 
 func parseBool(format, str string) (bool, error) {
@@ -104,9 +105,20 @@ func Parse(format, str string) ([]Result, error) {
 					goto formatLoop
 				case 'd':
 					// first arguments except format
-					n, err := parseInteger(format[i+1:], str[strOffset+i-1:])
+					n, err := parseInteger(format[i+1:], str[strOffset+i-1:], 10)
 					if err != nil {
-						return res, errors.Wrapf(err, "parseInteger(%s,%s) failed",
+						return res, errors.Wrapf(err, "parseInteger(%s,%s,10) failed",
+							format[i:], str[strOffset+i-1:])
+					}
+					strOffset += len(strconv.Itoa(n)) - 2
+					res = append(res, Result{reflect.Int, n})
+					i += 2
+					goto formatLoop
+				case 'o':
+					// first arguments except format
+					n, err := parseInteger(format[i+1:], str[strOffset+i-1:], 8)
+					if err != nil {
+						return res, errors.Wrapf(err, "parseInteger(%s,%s,8) failed",
 							format[i:], str[strOffset+i-1:])
 					}
 					strOffset += len(strconv.Itoa(n)) - 2
