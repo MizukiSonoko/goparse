@@ -8,10 +8,6 @@ jobs:
     steps:
 
       - run:
-          name: install clang
-          command: sudo apt install clang
-
-      - run:
           name: install modules
           command:
             GO111MODULE=on
