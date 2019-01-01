@@ -4,10 +4,11 @@ package goparse_test
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"testing"
 
-	"github.com/MizukiSonoko/goparse/parse"
+	goparse "github.com/MizukiSonoko/goparse/parse"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -114,6 +115,7 @@ func TestParse(t *testing.T) {
 		err := goparse.Parse(format, str).Insert(&res)
 		assert.Error(t, err)
 	})
+
 }
 
 func TestParse_string(t *testing.T) {
@@ -350,6 +352,15 @@ func TestParse_integer(t *testing.T) {
 			assert.Equal(t, expected, res)
 		})
 
+		t.Run("the argument is int8, and str happens overflow", func(t *testing.T) {
+			format := "-%d-"
+			str := fmt.Sprintf("-%d-", math.MaxInt8+1)
+
+			var res int8
+			err := goparse.Parse(format, str).Insert(&res)
+			assert.Errorf(t, err, "Parse(%s,%s) failed")
+		})
+
 		t.Run("the argument is int32", func(t *testing.T) {
 			format := "-%d-"
 			str := "-123-"
@@ -363,6 +374,15 @@ func TestParse_integer(t *testing.T) {
 			assert.Equal(t, expected, res)
 		})
 
+		t.Run("the argument is int32, and str happens overflow", func(t *testing.T) {
+			format := "-%d-"
+			str := fmt.Sprintf("-%d-", math.MaxInt32+1)
+
+			var res int32
+			err := goparse.Parse(format, str).Insert(&res)
+			assert.Errorf(t, err, "Parse(%s,%s) failed")
+		})
+
 		t.Run("the argument is int64", func(t *testing.T) {
 			format := "-%d-"
 			str := "-123-"
@@ -374,6 +394,17 @@ func TestParse_integer(t *testing.T) {
 			assert.NoErrorf(t, err, "Parse(%s,%s) failed")
 
 			assert.Equal(t, expected, res)
+		})
+
+		t.Run("the argument is int64, and str happens overflow", func(t *testing.T) {
+			format := "-%d-"
+			// 9223372036854775801=(2^63-1)+1
+			str := fmt.Sprintf("-9223372036854775808-")
+
+			var res int64
+			err := goparse.Parse(format, str).Insert(&res)
+			print(err.Error())
+			assert.Errorf(t, err, "Parse(%s,%s) failed")
 		})
 
 	})

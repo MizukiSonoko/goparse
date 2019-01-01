@@ -4,6 +4,7 @@ package goparse
 
 import (
 	"fmt"
+	"math"
 	"reflect"
 	"strconv"
 	"strings"
@@ -99,12 +100,21 @@ func assign(dest interface{}, src value) error {
 			*d = src.value.(int)
 			return nil
 		case *int8:
+			if src.value.(int) > math.MaxInt8 {
+				return fmt.Errorf("overflow: %d is greater than MaxInt8(%d)",
+					src.value.(int), math.MaxInt8)
+			}
 			*d = int8(src.value.(int))
 			return nil
 		case *int32:
+			if src.value.(int) > math.MaxInt32 {
+				return fmt.Errorf("overflow: %d is greater than MaxInt32(%d)",
+					src.value.(int), math.MaxInt32)
+			}
 			*d = int32(src.value.(int))
 			return nil
 		case *int64:
+			// Note: if value is over MaxInt64, strconv.ParseInt failed
 			*d = int64(src.value.(int))
 			return nil
 		default:
