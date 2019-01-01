@@ -100,8 +100,8 @@ func TestParse(t *testing.T) {
 		expected2 := 9753
 		var res1 string
 		var res2 int
-		err := goparse.Parse(format, str).Insert(&res1,&res2)
-		assert.NoError(t,err)
+		err := goparse.Parse(format, str).Insert(&res1, &res2)
+		assert.NoError(t, err)
 		assert.Equal(t, expected1, res1)
 		assert.Equal(t, expected2, res2)
 	})
@@ -115,7 +115,7 @@ func TestParse_string(t *testing.T) {
 		var res string
 
 		err := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&res)
-		assert.NoError(t,err)
+		assert.NoError(t, err)
 
 		assert.Equal(t, expected, res)
 	})
@@ -191,7 +191,7 @@ func TestParse_string(t *testing.T) {
 		err := goparse.Parse(format, str).Insert(&res)
 		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
 
-		assert.Equal(t,expected, res)
+		assert.Equal(t, expected, res)
 	})
 
 	t.Run("format contains 日本語 part 2", func(t *testing.T) {
@@ -202,7 +202,7 @@ func TestParse_string(t *testing.T) {
 
 		var res1, res2 string
 
-		err := goparse.Parse(format, str).Insert(&res1,&res2)
+		err := goparse.Parse(format, str).Insert(&res1, &res2)
 		assert.NoErrorf(t, err, "Parse(%s,%s) failed", format, str)
 
 		assert.Equal(t, expected1, res1)
@@ -216,7 +216,7 @@ func TestParse_string(t *testing.T) {
 		expected2 := "そうだね"
 		var res1, res2 string
 
-		err := goparse.Parse(format, str).Insert(&res1,&res2)
+		err := goparse.Parse(format, str).Insert(&res1, &res2)
 		assert.NoErrorf(t, err, "Parse(%s,%s) failed", format, str)
 
 		assert.Equal(t, expected1, res1)
@@ -275,7 +275,6 @@ func TestParse_string(t *testing.T) {
 			var res string
 			err := goparse.Parse(format, str).Insert(&res)
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
-			assert.Contains(t, err.Error(), "expected 0 destination")
 		})
 
 		t.Run("a cuple of %s", func(t *testing.T) {
@@ -314,8 +313,8 @@ func TestParse_integer(t *testing.T) {
 		expected2 := 7
 		checkTestCase(t, str, format, expected1, expected2)
 
-		var res1,res2 int
-		err := goparse.Parse(format, str).Insert(&res1,&res2)
+		var res1, res2 int
+		err := goparse.Parse(format, str).Insert(&res1, &res2)
 		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
 
 		assert.Equal(t, expected1, res1)
@@ -328,7 +327,7 @@ func TestParse_integer(t *testing.T) {
 			str := "ss"
 			var res int
 			err := goparse.Parse(format, str).Insert(&res)
-			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail",format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail", format, str)
 		})
 
 		t.Run("empty format", func(t *testing.T) {
@@ -336,7 +335,7 @@ func TestParse_integer(t *testing.T) {
 			str := ""
 			var res int
 			err := goparse.Parse(format, str).Insert(&res)
-			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail",format, str)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail", format, str)
 		})
 
 	})
@@ -412,7 +411,7 @@ func TestParse_boolean(t *testing.T) {
 		checkTestCase(t, str, format, true, false, true)
 		var res1, res2, res3 bool
 
-		err := goparse.Parse(format, str).Insert(&res1,&res2,&res3)
+		err := goparse.Parse(format, str).Insert(&res1, &res2, &res3)
 		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
 
 		assert.Equal(t, true, res1)
@@ -454,7 +453,7 @@ func ExampleParse_ja() {
 	format := "水樹素子「%s」。秋穂伊織「%s」"
 	str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
 	var mizukiMsg, ioriMsg string
-	_ = goparse.Parse(format,str).Insert(&mizukiMsg, &ioriMsg)
+	_ = goparse.Parse(format, str).Insert(&mizukiMsg, &ioriMsg)
 	fmt.Println(mizukiMsg)
 	fmt.Println(ioriMsg)
 	// Output:
@@ -475,8 +474,8 @@ func ExampleParse_number() {
 func ExampleParse_boolean() {
 	format := "I can't tell whether it is %t or %t"
 	str := "I can't tell whether it is false or true"
-	var res1,res2 bool
-	_ = goparse.Parse(format, str).Insert(&res1,&res2)
+	var res1, res2 bool
+	_ = goparse.Parse(format, str).Insert(&res1, &res2)
 	fmt.Println(res1)
 	fmt.Println(res2)
 	// Output:
@@ -499,8 +498,32 @@ func ExampleParse_ja_number8() {
 	expected := 123
 
 	var num int
+	fmt.Println(fmt.Sprintf(format, expected))
 	_ = goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&num)
 	fmt.Println(num)
 	// Output:
+	// Hello my number is 173
 	// 123
+}
+
+func ExampleParse_failed_insert_int_to_string() {
+	format := "Hello!! my number is %d"
+	str := "Hello!! my number is 1"
+
+	var resInvalidType string
+	err := goparse.Parse(format, str).Insert(&resInvalidType)
+	fmt.Println(err.Error())
+	// Output:
+	// assign(src{kind:int,1} => dest[0]) failed err:type mismatch: expected *int{8,32,64}, actual *string
+}
+
+func ExampleParse_failed() {
+	format := "Hello!! my number is %d"
+	str := "Hello!! my number is One"
+
+	var resInvalidType int
+	err := goparse.Parse(format, str).Insert(&resInvalidType)
+	fmt.Println(err.Error())
+	// Output:
+	// parseInteger(%d,"One",10) failed: ParseInt(One,10) failed: strconv.ParseInt: parsing "One": invalid syntax
 }
