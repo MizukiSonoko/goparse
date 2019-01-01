@@ -586,7 +586,7 @@ func ExampleParse_boolean() {
 	// true
 }
 
-func ExampleParse_ja_number() {
+func ExampleParse_JaNumber() {
 	format := "塩ラーメン ￥%d円"
 	str := "塩ラーメン ￥409円"
 	var num int
@@ -596,7 +596,7 @@ func ExampleParse_ja_number() {
 	// 409
 }
 
-func ExampleParse_ja_number8() {
+func ExampleParse_number8() {
 	format := "Hello my number is %o"
 	expected := 123
 
@@ -609,7 +609,7 @@ func ExampleParse_ja_number8() {
 	// 123
 }
 
-func ExampleParse_failed_insert_int_to_string() {
+func ExampleParse_failedInsertIntToString() {
 	format := "Hello!! my number is %d"
 	str := "Hello!! my number is 1"
 
