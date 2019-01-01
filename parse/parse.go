@@ -99,13 +99,13 @@ func assign(dest interface{}, src value) error {
 			*d = src.value.(int)
 			return nil
 		case *int8:
-			*d = src.value.(int8)
+			*d = int8(src.value.(int))
 			return nil
 		case *int32:
-			*d = src.value.(int32)
+			*d = int32(src.value.(int))
 			return nil
 		case *int64:
-			*d = src.value.(int64)
+			*d = int64(src.value.(int))
 			return nil
 		default:
 			return fmt.Errorf("type mismatch: expected *int{8,32,64}, actual %T", d)

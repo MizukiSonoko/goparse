@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	goparse "github.com/MizukiSonoko/goparse/parse"
+	"github.com/MizukiSonoko/goparse/parse"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -106,6 +106,14 @@ func TestParse(t *testing.T) {
 		assert.Equal(t, expected1, res1)
 		assert.Equal(t, expected2, res2)
 	})
+
+	t.Run("format contains two %s, but the argument is one", func(t *testing.T) {
+		format := "Hello %s, i'm %s"
+		str := "Hello Iori, i'm sonoko"
+		var res string
+		err := goparse.Parse(format, str).Insert(&res)
+		assert.Error(t, err)
+	})
 }
 
 func TestParse_string(t *testing.T) {
@@ -119,6 +127,26 @@ func TestParse_string(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, expected, res)
+	})
+
+	t.Run("the argument is []byte", func(t *testing.T) {
+		format := "Hello %s"
+		str := "Hello iorin"
+		expected := []byte("iorin")
+		var res []byte
+
+		err := goparse.Parse(format, str).Insert(&res)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("the argument is not string", func(t *testing.T) {
+		format := "Hello %s"
+		str := "Hello sodiu"
+		var res int
+
+		err := goparse.Parse(format, str).Insert(&res)
+		assert.Error(t, err)
 	})
 
 	t.Run("format has one %s", func(t *testing.T) {
@@ -305,6 +333,49 @@ func TestParse_integer(t *testing.T) {
 		err := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&res)
 		assert.NoError(t, err)
 		assert.Equal(t, expected, res)
+	})
+
+	t.Run("the argument is int friends?", func(t *testing.T) {
+
+		t.Run("the argument is int8", func(t *testing.T) {
+			format := "-%d-"
+			str := "-123-"
+			expected := int8(123)
+			checkTestCase(t, str, format, expected)
+
+			var res int8
+			err := goparse.Parse(format, str).Insert(&res)
+			assert.NoErrorf(t, err, "Parse(%s,%s) failed")
+
+			assert.Equal(t, expected, res)
+		})
+
+		t.Run("the argument is int32", func(t *testing.T) {
+			format := "-%d-"
+			str := "-123-"
+			expected := int32(123)
+			checkTestCase(t, str, format, expected)
+
+			var res int32
+			err := goparse.Parse(format, str).Insert(&res)
+			assert.NoErrorf(t, err, "Parse(%s,%s) failed")
+
+			assert.Equal(t, expected, res)
+		})
+
+		t.Run("the argument is int64", func(t *testing.T) {
+			format := "-%d-"
+			str := "-123-"
+			expected := int64(123)
+			checkTestCase(t, str, format, expected)
+
+			var res int64
+			err := goparse.Parse(format, str).Insert(&res)
+			assert.NoErrorf(t, err, "Parse(%s,%s) failed")
+
+			assert.Equal(t, expected, res)
+		})
+
 	})
 
 	t.Run("text contains multiple %d", func(t *testing.T) {
