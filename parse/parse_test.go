@@ -4,10 +4,11 @@ package goparse_test
 
 import (
 	"fmt"
-	"github.com/MizukiSonoko/goparse/parse"
-	"github.com/stretchr/testify/assert"
 	"strings"
 	"testing"
+
+	goparse "github.com/MizukiSonoko/goparse/parse"
+	"github.com/stretchr/testify/assert"
 )
 
 func checkTestCase(t *testing.T, expected, format string, str ...interface{}) {

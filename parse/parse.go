@@ -4,10 +4,11 @@ package goparse
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 type Result interface {
