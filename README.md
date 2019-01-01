@@ -13,8 +13,9 @@ This library is inspired by [r1chardj0n3s/parse](https://github.com/r1chardj0n3s
 > Parse() is the opposite of fmt.Sprintf()
 
 ```go
-res, err := goparse.Parse("Hello %s", "Hello World")
-fmt.Println(res[0].Value())
+var s string
+err := goparse.Parse("Hello %s", "Hello World").Insert(&s)
+fmt.Println(s)
 // Output:
 // World
 ```
@@ -25,8 +26,9 @@ fmt.Println(res[0].Value())
 ```go
 format := "Hello %s"
 expected := "World"
-res, _ := goparse.Parse(format,fmt.Sprintf(format,expected))
-fmt.Println(res[0].Value())
+var res string
+_ := goparse.Parse(format,fmt.Sprintf(format,expected)).Insert(&res)
+fmt.Println(s)
 // Output:
 // World
 ```
@@ -35,37 +37,33 @@ fmt.Println(res[0].Value())
 ```go
 format := "水樹素子「%s」。秋穂伊織「%s」"
 str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
-res, _ := goparse.Parse(format,str)
-fmt.Println(res[0].Value())
-fmt.Println(res[0].Kind().String())
-fmt.Println(res[1].Value())
-fmt.Println(res[0].Kind().String())
+var mizukiMsg, ioriMsg string
+_ := goparse.Parse(format,str).Insert(&mizukiMsg, &ioriMsg)
+fmt.Println(mizukiMsg)
+fmt.Println(ioriMsg)
 // Output:
 // 今日は天気が悪いね
-// string
 // そうだね
-// string
-}
 ```
 
 ### Base10 integer
 ```go
 format := "Hello my number is %d"
 expected := 100
-res, _ := goparse.Parse(format, fmt.Sprintf(format, expected))
-fmt.Println(res[0].Value())
-fmt.Println(res[0].Kind())
+var num int
+_ := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&num)
+fmt.Println(num)
 // Output:
-// 101
-// int
+// 100
 ```
 
 ### Base8 integer
 ```go
 format := "Hello my number is %o"
 expected := 123
-res, _ := goparse.Parse(format, fmt.Sprintf(format, expected))
-fmt.Println(res[0].Value())
+var numOct int
+res, _ := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&numOct)
+fmt.Println(numOct)
 // Output:
 // 123
 ```
@@ -74,9 +72,10 @@ fmt.Println(res[0].Value())
 ```go
 format := "I can't tell whether it is %t or %t"
 str := "I can't tell whether it is false or true"
-res, _ := goparse.Parse(format, str)
-fmt.Println(res[0].Value())
-fmt.Println(res[1].Value())
+var boolRes1, boolRes2 bool
+res, _ := goparse.Parse(format, str).Insert(&boolRes1,&boolRes2)
+fmt.Println(boolRes1)
+fmt.Println(boolRes2)
 // Output:
 // false
 // true
