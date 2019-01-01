@@ -89,6 +89,8 @@ func assign(dest interface{}, src value) error {
 			}
 			*d = []byte(src.value.(string))
 			return nil
+		default:
+			return fmt.Errorf("type mismatch: expected *string,*[]byte, actual %T", d)
 		}
 	case reflect.Int:
 		switch d := dest.(type) {
@@ -104,6 +106,8 @@ func assign(dest interface{}, src value) error {
 		case *int64:
 			*d = src.value.(int64)
 			return nil
+		default:
+			return fmt.Errorf("type mismatch: expected *int{8,32,64}, actual %T", d)
 		}
 	case reflect.Bool:
 		switch d := dest.(type) {
@@ -117,6 +121,11 @@ func assign(dest interface{}, src value) error {
 }
 
 func (r result) Insert(dest ...interface{}) error {
+	// r.err is happened by parser
+	if r.err != nil {
+		return r.err
+	}
+
 	if len(dest) != len(r.values) {
 		return fmt.Errorf(
 			"expected %d destination arguments in Insert, not %d",
@@ -125,8 +134,8 @@ func (r result) Insert(dest ...interface{}) error {
 	for i, sv := range r.values {
 		err := assign(dest[i], sv)
 		if err != nil {
-			return fmt.Errorf(`assign(dist[%d],src{kind:%s,%v}) failed err;%s`,
-				i, sv.kind.String(), sv.value, err)
+			return fmt.Errorf(`assign(src{kind:%s,%v} => dest[%d]) failed err:%s`,
+				sv.kind.String(), sv.value, i, err)
 		}
 	}
 	return nil
@@ -169,7 +178,7 @@ func Parse(format, str string) Result {
 					n, err := parseInteger(format[i+1:], str[strOffset+i-1:], 10)
 					if err != nil {
 						return result{
-							err: errors.Wrapf(err, "parseInteger(%s,%s,10) failed",
+							err: errors.Wrapf(err, "parseInteger(%%%s,\"%s\",10) failed",
 								format[i:], str[strOffset+i-1:]),
 						}
 					}
