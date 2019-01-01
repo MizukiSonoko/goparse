@@ -3,7 +3,7 @@ version: 2.0
 jobs:
   base:
     docker:
-      - image: circleci/golang:1.10
+      - image: circleci/golang:1.11
     working_directory: /go/src/github.com/MizukiSonoko/goparse
     steps:
 
@@ -12,8 +12,10 @@ jobs:
           command: sudo apt install clang
 
       - run:
-          name: install vgo
-          command: go get -u golang.org/x/vgo
+          name: install modules
+          command:
+            GO111MODULE=on
+            go mod vendor
 
       - run:
           name: install megacheck
