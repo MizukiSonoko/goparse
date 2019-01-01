@@ -90,9 +90,30 @@ func assign(dest interface{}, src value) error {
 			*d = []byte(src.value.(string))
 			return nil
 		}
+	case reflect.Int:
+		switch d := dest.(type) {
+		case *int:
+			*d = src.value.(int)
+			return nil
+		case *int8:
+			*d = src.value.(int8)
+			return nil
+		case *int32:
+			*d = src.value.(int32)
+			return nil
+		case *int64:
+			*d = src.value.(int64)
+			return nil
+		}
+	case reflect.Bool:
+		switch d := dest.(type) {
+		case *bool:
+			*d = src.value.(bool)
+			return nil
+		}
 	}
-	return fmt.Errorf("unsupported type %T into type %T", src, dest)
-
+	return fmt.Errorf("unsupported type %s into type %s",
+		src.kind.String(), reflect.TypeOf(dest).Kind().String())
 }
 
 func (r result) Insert(dest ...interface{}) error {
