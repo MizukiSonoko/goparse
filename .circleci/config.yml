@@ -8,16 +8,16 @@ jobs:
     steps:
 
       - run:
-          name: install modules
-          command:
-            GO111MODULE=on
-            go mod vendor
-
-      - run:
           name: install megacheck
           command: go get honnef.co/go/tools/cmd/megacheck
 
       - checkout
+
+      - run:
+          name: install modules
+          command:
+            GO111MODULE=on
+            go mod vendor
 
       - run:
          name: test
