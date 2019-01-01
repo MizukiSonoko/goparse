@@ -10,21 +10,8 @@ import (
 	"strings"
 )
 
-// A Result is returned by Parse
-// It has kind like string, int,..., and value
-type Result struct {
-	kind  reflect.Kind
-	value interface{}
-}
-
-// Kind returns a type of value. string, int, ...
-func (r Result) Kind() reflect.Kind {
-	return r.kind
-}
-
-// Value returns a value as interface
-func (r Result) Value() interface{} {
-	return r.value
+type Result interface {
+	Insert(dest ...interface{}) error
 }
 
 func parseString(format, str string) (string, error) {
@@ -76,16 +63,66 @@ func parseBool(format, str string) (bool, error) {
 	return b, nil
 }
 
+type value struct {
+	kind  reflect.Kind
+	value interface{}
+}
+
+type result struct {
+	err    error
+	values []value
+}
+
+func assign(dest interface{}, src value) error {
+	switch src.kind {
+	case reflect.String:
+		switch d := dest.(type) {
+		case *string:
+			if d == nil {
+				return fmt.Errorf("destination pointer should not be nil")
+			}
+			*d = src.value.(string)
+			return nil
+		case *[]byte:
+			if d == nil {
+				return fmt.Errorf("destination pointer should not be nil")
+			}
+			*d = []byte(src.value.(string))
+			return nil
+		}
+	}
+	return fmt.Errorf("unsupported type %T into type %T", src, dest)
+
+}
+
+func (r result) Insert(dest ...interface{}) error {
+	if len(dest) != len(r.values) {
+		return fmt.Errorf(
+			"expected %d destination arguments in Insert, not %d",
+			len(r.values), len(dest))
+	}
+	for i, sv := range r.values {
+		err := assign(dest[i], sv)
+		if err != nil {
+			return fmt.Errorf(`assign(dist[%d],src{kind:%s,%v}) failed err;%s`,
+				i, sv.kind.String(), sv.value, err)
+		}
+	}
+	return nil
+}
+
 // Parse parse str uses format
-func Parse(format, str string) ([]Result, error) {
-	var res []Result
+func Parse(format, str string) Result {
+	var res result
 	end := len(format)
 	strOffset := 0
 
 	for i := 0; i < end; {
 		if format[i] != '%' && format[i] != str[strOffset+i] {
-			return res, fmt.Errorf("invalid string (%s) with (%s). expect %c but it is %c",
-				str, format, format[i], str[strOffset+i])
+			return result{
+				err: fmt.Errorf("invalid string (%s) with (%s). expect %c but it is %c",
+					str, format, format[i], str[strOffset+i]),
+			}
 		}
 
 		if format[i] == '%' {
@@ -96,44 +133,56 @@ func Parse(format, str string) ([]Result, error) {
 					// first arguments except format
 					s, err := parseString(format[i+1:], str[strOffset+i-1:])
 					if err != nil {
-						return res, errors.Wrapf(err, "parseString(%s,%s) failed",
-							format[i:], str[strOffset+i-1:])
+						return result{
+							err: errors.Wrapf(err, "parseString(%s,%s) failed",
+								format[i:], str[strOffset+i-1:]),
+						}
 					}
 					strOffset += len(s) - 2
-					res = append(res, Result{reflect.String, s})
+					res.values = append(res.values, value{
+						reflect.String, s})
 					i += 2
 					goto formatLoop
 				case 'd':
 					// first arguments except format
 					n, err := parseInteger(format[i+1:], str[strOffset+i-1:], 10)
 					if err != nil {
-						return res, errors.Wrapf(err, "parseInteger(%s,%s,10) failed",
-							format[i:], str[strOffset+i-1:])
+						return result{
+							err: errors.Wrapf(err, "parseInteger(%s,%s,10) failed",
+								format[i:], str[strOffset+i-1:]),
+						}
 					}
 					strOffset += len(strconv.Itoa(n)) - 2
-					res = append(res, Result{reflect.Int, n})
+					res.values = append(res.values, value{
+						reflect.Int, n})
 					i += 2
 					goto formatLoop
 				case 'o':
 					// first arguments except format
 					n, err := parseInteger(format[i+1:], str[strOffset+i-1:], 8)
 					if err != nil {
-						return res, errors.Wrapf(err, "parseInteger(%s,%s,8) failed",
-							format[i:], str[strOffset+i-1:])
+						return result{
+							err: errors.Wrapf(err, "parseInteger(%s,%s,8) failed",
+								format[i:], str[strOffset+i-1:]),
+						}
 					}
 					strOffset += len(strconv.Itoa(n)) - 2
-					res = append(res, Result{reflect.Int, n})
+					res.values = append(res.values, value{
+						reflect.Int, n})
 					i += 2
 					goto formatLoop
 				case 't':
 					// first arguments except format
 					b, err := parseBool(format[i+1:], str[strOffset+i-1:])
 					if err != nil {
-						return res, errors.Wrapf(err, "parseInteger(%s,%s) failed",
-							format[i:], str[strOffset+i-1:])
+						return result{
+							err: errors.Wrapf(err, "parseInteger(%s,%s) failed",
+								format[i:], str[strOffset+i-1:]),
+						}
 					}
 					strOffset += len(strconv.FormatBool(b)) - 2
-					res = append(res, Result{reflect.Bool, b})
+					res.values = append(res.values, value{
+						reflect.Bool, b})
 					i += 2
 					goto formatLoop
 				}
@@ -142,5 +191,5 @@ func Parse(format, str string) ([]Result, error) {
 		i++
 	formatLoop:
 	}
-	return res, nil
+	return res
 }
