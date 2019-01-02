@@ -496,6 +496,56 @@ func TestParse_integer_base8(t *testing.T) {
 
 }
 
+func TestParse_integer_base2(t *testing.T) {
+
+	t.Run("The opposite of Sprintf", func(t *testing.T) {
+		t.Run("case1", func(t *testing.T) {
+			format := "Hello my number is %b"
+			expected := 123
+			var res int
+			err := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&res)
+			assert.NoError(t, err)
+			assert.Equal(t, expected, res)
+		})
+
+		t.Run("case2 multiple", func(t *testing.T) {
+			format := "%b %b %b"
+			expected1 := 123
+			expected2 := 456
+			expected3 := 135
+			var res1, res2, res3 int
+			err := goparse.Parse(format, fmt.Sprintf(format, expected1, expected2, expected3)).
+				Insert(&res1, &res2, &res3)
+			assert.NoError(t, err)
+			assert.Equal(t, expected1, res1)
+			assert.Equal(t, expected2, res2)
+			assert.Equal(t, expected3, res3)
+		})
+	})
+
+	t.Run("invalid argument", func(t *testing.T) {
+		t.Run("not number", func(t *testing.T) {
+			format := "%b"
+			str := "ss"
+			var res int
+
+			err := goparse.Parse(format, str).Insert(&res)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+		})
+
+		t.Run("empty format", func(t *testing.T) {
+			format := "%b"
+			str := ""
+			var res int
+
+			err := goparse.Parse(format, str).Insert(&res)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+		})
+
+	})
+
+}
+
 func TestParse_boolean(t *testing.T) {
 
 	t.Run("The opposite of Sprintf", func(t *testing.T) {

@@ -16,6 +16,11 @@ type Result interface {
 	Insert(dest ...interface{}) error
 }
 
+// parseString returns string before format
+//  ( format=" %s ", str= "a b c") => "a"
+//  ( format="%s", str= "nnnn") => "n"
+//  ( format="(%s)", str= "(yes)(no)") => "(yes)"
+//  ( format="or", str= "(yes)or(no)") => "(yes)"
 func parseString(format, str string) (string, error) {
 
 	// This case is happened by %s is in end of a text.
@@ -38,7 +43,11 @@ func parseString(format, str string) (string, error) {
 	return str[:i], nil
 }
 
+// parseInteger returns number
+// (format="yen",str="123yen",base=10) => 123
+// (format="yen",str="10101yen",base=2) => 21
 func parseInteger(format, str string, base int) (int, error) {
+	fmt.Printf("Invoke parseInteger(\"%s\",\"%s\",%d)\n", format, str, base)
 	s, err := parseString(format, str)
 	if err != nil {
 		return 0, errors.Wrapf(err, "parseString(%s,%s) failed",
@@ -190,6 +199,20 @@ func Parse(format, str string) Result {
 					if err != nil {
 						return result{
 							err: errors.Wrapf(err, "parseInteger(%%%s,\"%s\",10) failed",
+								format[i:], str[strOffset+i-1:]),
+						}
+					}
+					strOffset += len(strconv.Itoa(n)) - 2
+					res.values = append(res.values, value{
+						reflect.Int, n})
+					i += 2
+					goto formatLoop
+				case 'b':
+					// first arguments except format
+					n, err := parseInteger(format[i+1:], str[strOffset+i-1:], 2)
+					if err != nil {
+						return result{
+							err: errors.Wrapf(err, "parseInteger(%%%s,\"%s\",2) failed",
 								format[i:], str[strOffset+i-1:]),
 						}
 					}
