@@ -236,7 +236,14 @@ func Parse(format, str string) Result {
 								format[i:], str[strOffset+i-1:]),
 						}
 					}
-					strOffset += len(strconv.Itoa(n)) - 2
+					offset, err := parseString(format[i+1:], str[strOffset+i-1:])
+					if err != nil {
+						return result{
+							err: errors.Wrapf(err, "parseString(%%%s,\"%s\",2) failed",
+								format[i+1:], str[strOffset+i-1:]),
+						}
+					}
+					strOffset += len(offset) - 2
 					res.values = append(res.values, value{
 						reflect.Int, n})
 					i += 2
