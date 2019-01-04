@@ -27,7 +27,7 @@ fmt.Println(s)
 format := "Hello %s"
 expected := "World"
 var res string
-_ := goparse.Parse(format,fmt.Sprintf(format,expected)).Insert(&res)
+_ = goparse.Parse(format,fmt.Sprintf(format,expected)).Insert(&res)
 fmt.Println(s)
 // Output:
 // World
@@ -38,7 +38,7 @@ fmt.Println(s)
 format := "水樹素子「%s」。秋穂伊織「%s」"
 str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
 var mizukiMsg, ioriMsg string
-_ := goparse.Parse(format,str).Insert(&mizukiMsg, &ioriMsg)
+_ = goparse.Parse(format,str).Insert(&mizukiMsg, &ioriMsg)
 fmt.Println(mizukiMsg)
 fmt.Println(ioriMsg)
 // Output:
@@ -46,12 +46,23 @@ fmt.Println(ioriMsg)
 // そうだね
 ```
 
+### Base2 integer
+```go
+format := "Robot says '%d'"
+expected := 12345
+var num int
+_ = goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&num)
+fmt.Println(num)
+// Output:
+// 12345
+```
+
 ### Base10 integer
 ```go
 format := "Hello my number is %d"
 expected := 100
 var num int
-_ := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&num)
+_ = goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&num)
 fmt.Println(num)
 // Output:
 // 100
@@ -62,7 +73,7 @@ fmt.Println(num)
 format := "Hello my number is %o"
 expected := 123
 var numOct int
-res, _ := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&numOct)
+_ = goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&numOct)
 fmt.Println(numOct)
 // Output:
 // 123
@@ -73,7 +84,7 @@ fmt.Println(numOct)
 format := "I can't tell whether it is %t or %t"
 str := "I can't tell whether it is false or true"
 var boolRes1, boolRes2 bool
-res, _ := goparse.Parse(format, str).Insert(&boolRes1,&boolRes2)
+_ = goparse.Parse(format, str).Insert(&boolRes1,&boolRes2)
 fmt.Println(boolRes1)
 fmt.Println(boolRes2)
 // Output:
@@ -111,7 +122,7 @@ Cite by https://golang.org/pkg/fmt/
 
 ### Integer:
 ```
-[ ] %b	base 2
+[o] %b	base 2
 [ ] %c	the character represented by the corresponding Unicode code point
 [o] %d	base 10
 [o] %o	base 8
