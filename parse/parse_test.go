@@ -409,6 +409,42 @@ func TestParse_integer(t *testing.T) {
 
 	})
 
+	t.Run("case single", func(t *testing.T) {
+		format := "%d"
+		expected1 := 123
+		var res1 int
+		err := goparse.Parse(format, fmt.Sprintf(format, expected1)).
+			Insert(&res1)
+		assert.NoError(t, err)
+		assert.Equal(t, expected1, res1)
+	})
+
+	t.Run("case2 multiple 2", func(t *testing.T) {
+		format := "%d %d"
+		expected1 := 123
+		expected2 := 456
+		var res1, res2 int
+		err := goparse.Parse(format, fmt.Sprintf(format, expected1, expected2)).
+			Insert(&res1, &res2)
+		assert.NoError(t, err)
+		assert.Equal(t, expected1, res1)
+		assert.Equal(t, expected2, res2)
+	})
+
+	t.Run("case2 multiple 3", func(t *testing.T) {
+		format := "%d %d %d"
+		expected1 := 123
+		expected2 := 456
+		expected3 := 985
+		var res1, res2, res3 int
+		err := goparse.Parse(format, fmt.Sprintf(format, expected1, expected2, expected3)).
+			Insert(&res1, &res2, &res3)
+		assert.NoError(t, err)
+		assert.Equal(t, expected1, res1)
+		assert.Equal(t, expected2, res2)
+		assert.Equal(t, expected3, res3)
+	})
+
 	t.Run("text contains multiple %d", func(t *testing.T) {
 		format := "1%d456%d89"
 		str := "123456789"
@@ -473,6 +509,42 @@ func TestParse_integer_base8(t *testing.T) {
 
 	})
 
+	t.Run("case single", func(t *testing.T) {
+		format := "%o"
+		expected1 := 123
+		var res1 int
+		err := goparse.Parse(format, fmt.Sprintf(format, expected1)).
+			Insert(&res1)
+		assert.NoError(t, err)
+		assert.Equal(t, expected1, res1)
+	})
+
+	t.Run("case multiple 2", func(t *testing.T) {
+		format := "%o %o"
+		expected1 := 123
+		expected2 := 456
+		var res1, res2 int
+		err := goparse.Parse(format, fmt.Sprintf(format, expected1, expected2)).
+			Insert(&res1, &res2)
+		assert.NoError(t, err)
+		assert.Equal(t, expected1, res1)
+		assert.Equal(t, expected2, res2)
+	})
+
+	t.Run("case multiple 3", func(t *testing.T) {
+		format := "%o %o %o"
+		expected1 := 123
+		expected2 := 456
+		expected3 := 985
+		var res1, res2, res3 int
+		err := goparse.Parse(format, fmt.Sprintf(format, expected1, expected2, expected3)).
+			Insert(&res1, &res2, &res3)
+		assert.NoError(t, err)
+		assert.Equal(t, expected1, res1)
+		assert.Equal(t, expected2, res2)
+		assert.Equal(t, expected3, res3)
+	})
+
 	t.Run("invalid argument", func(t *testing.T) {
 		t.Run("not number", func(t *testing.T) {
 			format := "%o"
@@ -506,6 +578,28 @@ func TestParse_integer_base2(t *testing.T) {
 			err := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&res)
 			assert.NoError(t, err)
 			assert.Equal(t, expected, res)
+		})
+
+		t.Run("case2 single", func(t *testing.T) {
+			format := "%b"
+			expected1 := 123
+			var res1 int
+			err := goparse.Parse(format, fmt.Sprintf(format, expected1)).
+				Insert(&res1)
+			assert.NoError(t, err)
+			assert.Equal(t, expected1, res1)
+		})
+
+		t.Run("case2 multiple 2", func(t *testing.T) {
+			format := "%b %b"
+			expected1 := 123
+			expected2 := 456
+			var res1, res2 int
+			err := goparse.Parse(format, fmt.Sprintf(format, expected1, expected2)).
+				Insert(&res1, &res2)
+			assert.NoError(t, err)
+			assert.Equal(t, expected1, res1)
+			assert.Equal(t, expected2, res2)
 		})
 
 		t.Run("case2 multiple", func(t *testing.T) {
@@ -678,5 +772,5 @@ func ExampleParse_failed() {
 	err := goparse.Parse(format, str).Insert(&resInvalidType)
 	fmt.Println(err.Error())
 	// Output:
-	// parseInteger(%d,"One",10) failed: ParseInt(One,10) failed: strconv.ParseInt: parsing "One": invalid syntax
+	// parseInteger(%d,"One",10) failed: ParseInt("One",10) failed: strconv.ParseInt: parsing "One": invalid syntax
 }

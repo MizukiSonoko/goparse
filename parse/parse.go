@@ -47,7 +47,6 @@ func parseString(format, str string) (string, error) {
 // (format="yen",str="123yen",base=10) => 123
 // (format="yen",str="10101yen",base=2) => 21
 func parseInteger(format, str string, base int) (int, error) {
-	fmt.Printf("Invoke parseInteger(\"%s\",\"%s\",%d)\n", format, str, base)
 	s, err := parseString(format, str)
 	if err != nil {
 		return 0, errors.Wrapf(err, "parseString(%s,%s) failed",
@@ -56,7 +55,7 @@ func parseInteger(format, str string, base int) (int, error) {
 	// ToDo We should think about int64
 	i, err := strconv.ParseInt(s, base, 0)
 	if err != nil {
-		return 0, errors.Wrapf(err, "ParseInt(%s,%d) failed", s, base)
+		return 0, errors.Wrapf(err, "ParseInt(\"%s\",%d) failed", s, base)
 	}
 	return int(i), nil
 }
@@ -216,7 +215,14 @@ func Parse(format, str string) Result {
 								format[i:], str[strOffset+i-1:]),
 						}
 					}
-					strOffset += len(strconv.Itoa(n)) - 2
+					offset, err := parseString(format[i+1:], str[strOffset+i-1:])
+					if err != nil {
+						return result{
+							err: errors.Wrapf(err, "parseString(%%%s,\"%s\",2) failed",
+								format[i+1:], str[strOffset+i-1:]),
+						}
+					}
+					strOffset += len(offset) - 2
 					res.values = append(res.values, value{
 						reflect.Int, n})
 					i += 2
