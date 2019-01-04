@@ -1,4 +1,4 @@
-// Copyright (C) 2018 MizukiSonoko. All rights reserved.
+// Copyright (C) 2018,2019 MizukiSonoko. All rights reserved.
 
 package goparse
 
