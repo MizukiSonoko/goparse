@@ -73,6 +73,19 @@ func parseBool(format, str string) (bool, error) {
 	return b, nil
 }
 
+func parseFloat(format, str string) (float64, error) {
+	s, err := parseString(format, str)
+	if err != nil {
+		return 0, errors.Wrapf(err, "parseString(%s,%s) failed",
+			format, str)
+	}
+	f, err := strconv.ParseFloat(s, 0)
+	if err != nil {
+		return 0, errors.Wrapf(err, "ParseFloat(%s) failed", s)
+	}
+	return f, nil
+}
+
 type value struct {
 	kind  reflect.Kind
 	value interface{}
@@ -132,6 +145,15 @@ func assign(dest interface{}, src value) error {
 		switch d := dest.(type) {
 		case *bool:
 			*d = src.value.(bool)
+			return nil
+		}
+	case reflect.Float64:
+		switch d := dest.(type) {
+		case *float64:
+			*d = src.value.(float64)
+			return nil
+		case *float32:
+			*d = float32(src.value.(float64))
 			return nil
 		}
 	}
@@ -260,6 +282,27 @@ func Parse(format, str string) Result {
 					strOffset += len(strconv.FormatBool(b)) - 2
 					res.values = append(res.values, value{
 						reflect.Bool, b})
+					i += 2
+					goto formatLoop
+				case 'f':
+					// first arguments except format
+					f, err := parseFloat(format[i+1:], str[strOffset+i-1:])
+					if err != nil {
+						return result{
+							err: errors.Wrapf(err, "parseFloat(%s,%s) failed",
+								format[i:], str[strOffset+i-1:]),
+						}
+					}
+					offset, err := parseString(format[i+1:], str[strOffset+i-1:])
+					if err != nil {
+						return result{
+							err: errors.Wrapf(err, "parseString(\"%s\",\"%s\") failed",
+								format[i+1:], str[strOffset+i-1:]),
+						}
+					}
+					strOffset += len(offset) - 2
+					res.values = append(res.values, value{
+						reflect.Float64, f})
 					i += 2
 					goto formatLoop
 				}

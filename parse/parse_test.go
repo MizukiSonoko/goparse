@@ -688,6 +688,57 @@ func TestParse_boolean(t *testing.T) {
 
 }
 
+func TestParse_float(t *testing.T) {
+
+	t.Run("The opposite of Sprintf", func(t *testing.T) {
+		format := "Hello my number is %f"
+		expected := 123.456
+		var res float64
+
+		err := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&res)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("text contains multiple %d", func(t *testing.T) {
+		format := "Wow%f_Wow%f_Wow%f"
+		str := "Wow12.340000_Wow45.670000_Wow78.900000"
+		checkTestCase(t, str, format, 12.34, 45.67, 78.9)
+		expected1 := 12.34
+		expected2 := 45.67
+		expected3 := 78.9
+		var res1, res2, res3 float64
+
+		err := goparse.Parse(format, str).Insert(&res1, &res2, &res3)
+		assert.NoErrorf(t, err, "Parse(%s,%s) failed")
+
+		assert.Equal(t, expected1, res1)
+		assert.Equal(t, expected2, res2)
+		assert.Equal(t, expected3, res3)
+	})
+
+	t.Run("invalid argument", func(t *testing.T) {
+		t.Run("not float", func(t *testing.T) {
+			format := "%f"
+			str := "ss"
+			var res float64
+			err := goparse.Parse(format, str).Insert(&res)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+		})
+
+		t.Run("empty format", func(t *testing.T) {
+			format := "%f"
+			str := ""
+			var res float64
+
+			err := goparse.Parse(format, str).Insert(&res)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+		})
+
+	})
+
+}
+
 func ExampleParse() {
 	var str string
 	_ = goparse.Parse("Hello %s", "Hello World").Insert(&str)
