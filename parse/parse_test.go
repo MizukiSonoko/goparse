@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	goparse "github.com/MizukiSonoko/goparse/parse"
+	"github.com/MizukiSonoko/goparse/parse"
 	"github.com/stretchr/testify/assert"
 )
 

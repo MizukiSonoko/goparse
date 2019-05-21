@@ -101,19 +101,7 @@ go get github.com/MizukiSonoko/goparse
 ## The format 'verbs'
 Cite by https://golang.org/pkg/fmt/
 
-- `[ ]` blank means i should decide goparse supports or not
-- `[o]` already implemented
-- `[x]` not supported
-- `[A]` will be supported
-
-### General:
-```
-[ ] %v	the value in a default format
-	when printing structs, the plus flag (%+v) adds field names
-[ ] %#v	a Go-syntax representation of the value
-[ ] %T	a Go-syntax representation of the type of the value
-[ ] %%	a literal percent sign; consumes no value
-```
+I support this verbs as follows:
 
 ### Boolean:
 ```
@@ -123,32 +111,11 @@ Cite by https://golang.org/pkg/fmt/
 ### Integer:
 ```
 [o] %b	base 2
-[ ] %c	the character represented by the corresponding Unicode code point
 [o] %d	base 10
 [o] %o	base 8
-[ ] %q	a single-quoted character literal safely escaped with Go syntax.
-[ ] %x	base 16, with lower-case letters for a-f
-[ ] %X	base 16, with upper-case letters for A-F
-[ ] %U	Unicode format: U+1234; same as "U+%04X"
-```
-
-### Floating-point and complex constituents:
-```
-[ ] %b	decimalless scientific notation with exponent a power of two,
-	in the manner of strconv.FormatFloat with the 'b' format,
-	e.g. -123456p-78
-[ ] %e	scientific notation, e.g. -1.234456e+78
-[ ] %E	scientific notation, e.g. -1.234456E+78
-[ ] %f	decimal point but no exponent, e.g. 123.456
-[ ] %F	synonym for %f
-[ ] %g	%e for large exponents, %f otherwise. Precision is discussed below.
-[ ] %G	%E for large exponents, %F otherwise
 ```
 
 ### String and slice of bytes (treated equivalently with these verbs):
 ```
 [o] %s	the uninterpreted bytes of the string or slice
-[ ] %q	a double-quoted string safely escaped with Go syntax
-[ ] %x	base 16, lower-case, two characters per byte
-[ ] %X	base 16, upper-case, two characters per byte
 ```

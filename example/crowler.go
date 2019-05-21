@@ -10,7 +10,7 @@ import (
 	"net/http"
 )
 
-func main()  {
+func main() {
 	resp, err := http.Get("http://example.com")
 	if err != nil {
 		log.Fatalf("Get failed err:%s", err)
@@ -23,14 +23,14 @@ func main()  {
 	}
 
 	var d1, d2, title, charset string
-	err = goparse.Parse("%s<title>%s</title>%s", string(body)).Insert(&d1, &title,&d2)
-	if err != nil{
+	err = goparse.Parse("%s<title>%s</title>%s", string(body)).Insert(&d1, &title, &d2)
+	if err != nil {
 		log.Fatalf("Parse failed err:%s", err)
 	}
 	fmt.Printf("title is %s\n", title)
 
 	err = goparse.Parse("%s<meta charset=\"%s\" />%s", string(body)).Insert(&d1, &charset, &d2)
-	if err != nil{
+	if err != nil {
 		log.Fatalf("Parse failed err:%s", err)
 	}
 	fmt.Printf("charset is %s\n", charset)
