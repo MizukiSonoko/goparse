@@ -118,9 +118,9 @@ func TestParse(t *testing.T) {
 
 	// ToDo: I should implements about %f
 	t.Run("format contains an unsupported type", func(t *testing.T) {
-		format := "Hello I want a coffee %f gram"
+		format := "Hello I want a coffee %g gram"
 		str := "Hello I want a coffee 123.456 gram"
-		var res string
+		var res float32
 		err := goparse.Parse(format, str).Insert(&res)
 		assert.Error(t, err)
 	})
@@ -703,6 +703,16 @@ func TestParse_float(t *testing.T) {
 		format := "Hello my number is %f"
 		expected := 123.456
 		var res float64
+
+		err := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&res)
+		assert.NoError(t, err)
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("The opposite of Sprintf (float32)", func(t *testing.T) {
+		format := "Hello my number is %f"
+		expected := 123.456
+		var res float32
 
 		err := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&res)
 		assert.NoError(t, err)
