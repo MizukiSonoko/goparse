@@ -115,6 +115,11 @@ I support this verbs as follows:
 [o] %o	base 8
 ```
 
+### Floating-point and complex constituents:
+```
+[o] %f	decimal point but no exponent, e.g. 123.456
+```
+
 ### String and slice of bytes (treated equivalently with these verbs):
 ```
 [o] %s	the uninterpreted bytes of the string or slice

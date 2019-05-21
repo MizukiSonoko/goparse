@@ -116,6 +116,15 @@ func TestParse(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	// ToDo: I should implements about %f
+	t.Run("format contains an unsupported type", func(t *testing.T) {
+		format := "Hello I want a coffee %f gram"
+		str := "Hello I want a coffee 123.456 gram"
+		var res string
+		err := goparse.Parse(format, str).Insert(&res)
+		assert.Error(t, err)
+	})
+
 }
 
 func TestParse_string(t *testing.T) {
