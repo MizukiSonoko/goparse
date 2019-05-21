@@ -711,7 +711,7 @@ func TestParse_float(t *testing.T) {
 
 	t.Run("The opposite of Sprintf (float32)", func(t *testing.T) {
 		format := "Hello my number is %f"
-		expected := 123.456
+		expected := float32(123.456)
 		var res float32
 
 		err := goparse.Parse(format, fmt.Sprintf(format, expected)).Insert(&res)
