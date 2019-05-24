@@ -222,6 +222,10 @@ func TestParse_string(t *testing.T) {
 		}
 	})
 
+}
+
+func TestParse_string_ja(t *testing.T) {
+
 	t.Run("format contains 日本語", func(t *testing.T) {
 		format := "Hello %s"
 		str := "Hello こんにちは"
@@ -304,9 +308,12 @@ func TestParse_string(t *testing.T) {
 			str = strings.Join(names[:i], "_")
 			format = "%s" + strings.Repeat("_%s", i-1)
 			checkTestCase(t, str, format, asI(names[:i])...)
-
 		}
 	})
+
+}
+
+func TestParse_string_invalid(t *testing.T) {
 
 	t.Run("Invalid argumetns", func(t *testing.T) {
 		t.Run("No match", func(t *testing.T) {
