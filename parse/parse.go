@@ -13,7 +13,11 @@ import (
 )
 
 type Result interface {
+	// Insert insets format values to dest
 	Insert(dest ...interface{}) error
+
+	// Insert inserts a selected format value to dest
+	InsertOnly(index int, dest interface{}) error
 }
 
 // parseString returns string before format
@@ -177,6 +181,30 @@ func (r result) Insert(dest ...interface{}) error {
 		if err != nil {
 			return fmt.Errorf(`assign(src{kind:%s,%v} => dest[%d]) failed err:%s`,
 				sv.kind.String(), sv.value, i, err)
+		}
+	}
+	return nil
+}
+
+func (r result) InsertOnly(index int, dest interface{}) error {
+	// r.err is happened by parser
+	if r.err != nil {
+		return r.err
+	}
+
+	if index >= len(r.values) {
+		return fmt.Errorf(
+			"invalid index:%d, format is only %d",
+			index, len(r.values))
+	}
+
+	for i, sv := range r.values {
+		if i == index {
+			err := assign(dest, sv)
+			if err != nil {
+				return fmt.Errorf(`assign(src{kind:%s,%v} => dest[%d]) failed err:%s`,
+					sv.kind.String(), sv.value, i, err)
+			}
 		}
 	}
 	return nil
