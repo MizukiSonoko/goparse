@@ -22,14 +22,14 @@ func main() {
 		log.Fatalf("ReadAll failed err:%s", err)
 	}
 
-	var d1, d2, title, charset string
-	err = goparse.Parse("%s<title>%s</title>%s", string(body)).Insert(&d1, &title, &d2)
+	var title, charset string
+	err = goparse.Parse("%s<title>%s</title>%s", string(body)).InsertOnly(1, &title)
 	if err != nil {
 		log.Fatalf("Parse failed err:%s", err)
 	}
 	fmt.Printf("title is %s\n", title)
 
-	err = goparse.Parse("%s<meta charset=\"%s\" />%s", string(body)).Insert(&d1, &charset, &d2)
+	err = goparse.Parse("%s<meta charset=\"%s\" />%s", string(body)).InsertOnly(1, &charset)
 	if err != nil {
 		log.Fatalf("Parse failed err:%s", err)
 	}
