@@ -4,6 +4,7 @@ package goparse_test
 
 import (
 	"fmt"
+	"log"
 	"math"
 	"strings"
 	"testing"
@@ -763,6 +764,46 @@ func TestParse_float(t *testing.T) {
 
 	})
 
+}
+
+func TestInsertOnly_normal(t *testing.T) {
+
+	t.Run("working case", func(t *testing.T) {
+		format := "Hello %s! I'm %s,%s"
+		actual := "Hello Yukari! I'm SonokoMizuki, my favorite language is golang"
+		var res string
+
+		t.Run("First one", func(t *testing.T) {
+			expected := "Yukari"
+			err := goparse.Parse(format, actual).InsertOnly(0, &res)
+			if err != nil {
+				log.Fatalf("InsertOnly failed err:%s", err)
+			}
+			assert.Equal(t, expected, res)
+		})
+
+		t.Run("Second one", func(t *testing.T) {
+			expected := "SonokoMizuki"
+			err := goparse.Parse(format, actual).InsertOnly(1, &res)
+			if err != nil {
+				log.Fatalf("InsertOnly failed err:%s", err)
+			}
+			assert.Equal(t, expected, res)
+		})
+	})
+
+
+	t.Run("invalid index case", func(t *testing.T) {
+		format := "Hello %s!"
+		actual := "Hello Yukari!"
+		var res string
+
+		t.Run("over index", func(t *testing.T) {
+			err := goparse.Parse(format, actual).InsertOnly(99999999, &res)
+			assert.Error(t, err)
+		})
+
+	})
 }
 
 func ExampleParse() {
