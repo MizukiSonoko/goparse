@@ -117,11 +117,20 @@ func TestParse(t *testing.T) {
 		assert.Error(t, err)
 	})
 
-	// ToDo: I should implements about %f
 	t.Run("format contains an unsupported type", func(t *testing.T) {
 		format := "Hello I want a coffee %g gram"
 		str := "Hello I want a coffee 123.456 gram"
 		var res float32
+		err := goparse.Parse(format, str).Insert(&res)
+		assert.Error(t, err)
+	})
+
+	t.Run("format contains %s, but the argument is struct", func(t *testing.T) {
+		format := "Hello %s"
+		str := "Hello Iori"
+		var res struct {
+			dummy string
+		}
 		err := goparse.Parse(format, str).Insert(&res)
 		assert.Error(t, err)
 	})
@@ -792,7 +801,6 @@ func TestInsertOnly_normal(t *testing.T) {
 		})
 	})
 
-
 	t.Run("invalid index case", func(t *testing.T) {
 		format := "Hello %s!"
 		actual := "Hello Yukari!"
@@ -803,6 +811,21 @@ func TestInsertOnly_normal(t *testing.T) {
 			assert.Error(t, err)
 		})
 
+		t.Run("not number case", func(t *testing.T) {
+			format := "%d"
+			str := "string"
+			var res int
+			err := goparse.Parse(format, str).InsertOnly(0, &res)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail", format, str)
+		})
+
+		t.Run("type mismatch case", func(t *testing.T) {
+			format := "%s"
+			str := "string"
+			var res int
+			err := goparse.Parse(format, str).InsertOnly(0, &res)
+			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail", format, str)
+		})
 	})
 }
 

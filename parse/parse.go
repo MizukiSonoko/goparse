@@ -25,6 +25,9 @@ type Result interface {
 //  ( format="%s", str= "nnnn") => "n"
 //  ( format="(%s)", str= "(yes)(no)") => "(yes)"
 //  ( format="or", str= "(yes)or(no)") => "(yes)"
+//
+// If format not contains str in text before '%', returns err
+//  ( format="Soni%", str="MizukiSonoko") => [MizukiSonoko] not contains [Soni]
 func parseString(format, str string) (string, error) {
 
 	// This case is happened by %s is in end of a text.
@@ -35,7 +38,7 @@ func parseString(format, str string) (string, error) {
 	terms := strings.Split(format, "%")
 	i := strings.Index(str, terms[0])
 	if i == -1 {
-		return "", fmt.Errorf("LastIndex return -1, [%s] not contains [%s]",
+		return "", fmt.Errorf("[%s] not contains [%s]",
 			str, terms[0])
 	} else if i == 0 {
 		ni := strings.Index(str[1:], terms[0])
@@ -51,11 +54,13 @@ func parseString(format, str string) (string, error) {
 // (format="yen",str="123yen",base=10) => 123
 // (format="yen",str="10101yen",base=2) => 21
 func parseInteger(format, str string, base int) (int, error) {
-	s, err := parseString(format, str)
-	if err != nil {
-		return 0, errors.Wrapf(err, "parseString(%s,%s) failed",
-			format, str)
-	}
+	/*
+		Note: this function never returns error.
+		 Because in Parse, check `format[i] != '%' && format[i] != str[strOffset+i]`.
+		 So str must contain format text before '%'
+	*/
+	s, _ := parseString(format, str)
+
 	// ToDo We should think about int64
 	i, err := strconv.ParseInt(s, base, 0)
 	if err != nil {
@@ -65,11 +70,13 @@ func parseInteger(format, str string, base int) (int, error) {
 }
 
 func parseBool(format, str string) (bool, error) {
-	s, err := parseString(format, str)
-	if err != nil {
-		return false, errors.Wrapf(err, "parseString(%s,%s) failed",
-			format, str)
-	}
+	/*
+		Note: this function never returns error.
+		 Because in Parse, check `format[i] != '%' && format[i] != str[strOffset+i]`.
+		 So str must contain format text before '%'
+	*/
+	s, _ := parseString(format, str)
+
 	b, err := strconv.ParseBool(s)
 	if err != nil {
 		return false, errors.Wrapf(err, "ParseBool(%s) failed", s)
@@ -78,11 +85,13 @@ func parseBool(format, str string) (bool, error) {
 }
 
 func parseFloat(format, str string) (float64, error) {
-	s, err := parseString(format, str)
-	if err != nil {
-		return 0, errors.Wrapf(err, "parseString(%s,%s) failed",
-			format, str)
-	}
+	/*
+		Note: this function never returns error.
+		 Because in Parse, check `format[i] != '%' && format[i] != str[strOffset+i]`.
+		 So str must contain format text before '%'
+	*/
+	s, _ := parseString(format, str)
+
 	f, err := strconv.ParseFloat(s, 0)
 	if err != nil {
 		return 0, errors.Wrapf(err, "ParseFloat(%s) failed", s)
@@ -265,13 +274,13 @@ func Parse(format, str string) Result {
 								format[i:], str[strOffset+i-1:]),
 						}
 					}
-					offset, err := parseString(format[i+1:], str[strOffset+i-1:])
-					if err != nil {
-						return result{
-							err: errors.Wrapf(err, "parseString(%%%s,\"%s\",2) failed",
-								format[i+1:], str[strOffset+i-1:]),
-						}
-					}
+					/*
+						Note: this function never returns error.
+						 Because in Parse, check `format[i] != '%' && format[i] != str[strOffset+i]`.
+						 So str must contain format text before '%'
+					*/
+					offset, _ := parseString(format[i+1:], str[strOffset+i-1:])
+
 					strOffset += len(offset) - 2
 					res.values = append(res.values, value{
 						reflect.Int, n})
@@ -286,13 +295,13 @@ func Parse(format, str string) Result {
 								format[i:], str[strOffset+i-1:]),
 						}
 					}
-					offset, err := parseString(format[i+1:], str[strOffset+i-1:])
-					if err != nil {
-						return result{
-							err: errors.Wrapf(err, "parseString(%%%s,\"%s\",2) failed",
-								format[i+1:], str[strOffset+i-1:]),
-						}
-					}
+					/*
+						Note: this function never returns error.
+						 Because in Parse, check `format[i] != '%' && format[i] != str[strOffset+i]`.
+						 So str must contain format text before '%'
+					*/
+					offset, _ := parseString(format[i+1:], str[strOffset+i-1:])
+
 					strOffset += len(offset) - 2
 					res.values = append(res.values, value{
 						reflect.Int, n})
@@ -321,13 +330,13 @@ func Parse(format, str string) Result {
 								format[i:], str[strOffset+i-1:]),
 						}
 					}
-					offset, err := parseString(format[i+1:], str[strOffset+i-1:])
-					if err != nil {
-						return result{
-							err: errors.Wrapf(err, "parseString(\"%s\",\"%s\") failed",
-								format[i+1:], str[strOffset+i-1:]),
-						}
-					}
+					/*
+						Note: this function never returns error.
+						 Because in Parse, check `format[i] != '%' && format[i] != str[strOffset+i]`.
+						 So str must contain format text before '%'
+					*/
+					offset, _ := parseString(format[i+1:], str[strOffset+i-1:])
+
 					strOffset += len(offset) - 2
 					res.values = append(res.values, value{
 						reflect.Float64, f})
