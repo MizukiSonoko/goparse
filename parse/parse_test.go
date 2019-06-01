@@ -177,6 +177,7 @@ func TestParse_string(t *testing.T) {
 
 		err := goparse.Parse(format, str).Insert(&res)
 		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ambiguous")
 	})
 
 	t.Run("format has one %s", func(t *testing.T) {

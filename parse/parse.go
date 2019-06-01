@@ -236,6 +236,13 @@ func Parse(format, str string) Result {
 		if format[i] == '%' {
 			for ; i < end; i++ {
 				c := format[i]
+				if i+2 < end && format[i+1] == '%' {
+					return result{
+						err: fmt.Errorf(
+							"invalid format(\"%s\"). too ambiguous to invese format",
+							format),
+					}
+				}
 				switch c {
 				case 's':
 					// first arguments except format
