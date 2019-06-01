@@ -170,6 +170,15 @@ func TestParse_string(t *testing.T) {
 		assert.Error(t, err)
 	})
 
+	t.Run("invalid string like %s%s%s", func(t *testing.T) {
+		format := "%s%s%s"
+		str := "abc"
+		var res string
+
+		err := goparse.Parse(format, str).Insert(&res)
+		assert.Error(t, err)
+	})
+
 	t.Run("format has one %s", func(t *testing.T) {
 		for _, tt := range []struct {
 			format   string
