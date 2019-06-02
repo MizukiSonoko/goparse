@@ -169,6 +169,21 @@ func assign(dest interface{}, src value) error {
 			*d = float32(src.value.(float64))
 			return nil
 		}
+	case reflect.Struct:
+		rt := reflect.ValueOf(dest)
+		for i, val := range src.value.([]interface{}) {
+			switch v := val.(type) {
+			case string:
+				reflect.Indirect(rt).Field(i).SetString(v)
+			case int64:
+				reflect.Indirect(rt).Field(i).SetInt(v)
+			case float64:
+				reflect.Indirect(rt).Field(i).SetFloat(v)
+			case bool:
+				reflect.Indirect(rt).Field(i).SetBool(v)
+			}
+		}
+		return nil
 	}
 	return fmt.Errorf("unsupported type %s into type %s",
 		src.kind.String(), reflect.TypeOf(dest).Kind().String())
@@ -347,6 +362,51 @@ func Parse(format, str string) Result {
 					strOffset += len(offset) - 2
 					res.values = append(res.values, value{
 						reflect.Float64, f})
+					i += 2
+					goto formatLoop
+				case 'v':
+					// first arguments except format
+					s, err := parseString(format[i+1:], str[strOffset+i-1:])
+					if err != nil {
+						return result{
+							err: errors.Wrapf(err, "parseString(%s,%s) failed",
+								format[i:], str[strOffset+i-1:]),
+						}
+					}
+					if s[0] != '{' || s[len(s)-1] != '}' {
+						return result{
+							err: errors.Wrapf(err, "invalid string(%s) for %%v, %%v accepts \"{...}\"",
+								s),
+						}
+					}
+					slice := strings.Split(s[1:len(s)-1], " ")
+					attrs := make([]interface{}, 0, len(slice))
+					for _, attr := range slice {
+
+						attrI, err := strconv.ParseInt(attr, 10, 0)
+						if err == nil {
+							attrs = append(attrs, attrI)
+							continue
+						}
+
+						attrB, err := strconv.ParseBool(attr)
+						if err == nil {
+							attrs = append(attrs, attrB)
+							continue
+						}
+
+						attrF, err := strconv.ParseFloat(attr, 0)
+						if err == nil {
+							attrs = append(attrs, attrF)
+							continue
+						}
+
+						attrs = append(attrs, attr)
+					}
+
+					strOffset += len(s) - 2
+					res.values = append(res.values, value{
+						reflect.Struct, attrs})
 					i += 2
 					goto formatLoop
 				}
