@@ -7,10 +7,6 @@ jobs:
     working_directory: /go/src/github.com/MizukiSonoko/goparse
     steps:
 
-      - run:
-          name: install megacheck
-          command: go get honnef.co/go/tools/cmd/megacheck
-
       - checkout
 
       - run:
