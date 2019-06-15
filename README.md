@@ -92,6 +92,25 @@ fmt.Println(boolRes2)
 // true
 ```
 
+### Struct
+
+Note: arguments struct should expose all attribute
+```go
+type sample struct {
+    Name string
+    Value int
+};
+format := "sample %v"
+str := "sample {Hello 123}"
+var res sample
+_ := goparse.Parse(format, str).Insert(&res)
+fmt.Println(res.Name)
+fmt.Println(res.Value)
+// Output:
+// Hello
+// 123
+```
+
 ## Installation
 
 ```sh
