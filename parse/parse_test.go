@@ -785,6 +785,29 @@ func TestParse_float(t *testing.T) {
 
 }
 
+func TestParse_Any(t *testing.T){
+
+	t.Run("format contains %v", func(t *testing.T) {
+		type sample struct {
+			Name string
+			Value int
+		};
+		format := "sample %v"
+		str := "sample {Hello 123}"
+		var res sample
+		err := goparse.Parse(format, str).Insert(&res)
+		if err != nil{
+			t.Fatalf("Parse failed err:%s", err)
+		}
+		if res.Name != "Hello"{
+			t.Errorf("Name is %s, but want %s", res.Name, "Hello")
+		}
+		if res.Value != 123{
+			t.Errorf("Value is %d, but want %d", res.Value, 123)
+		}
+	})
+}
+
 func TestInsertOnly_normal(t *testing.T) {
 
 	t.Run("working case", func(t *testing.T) {
