@@ -359,7 +359,7 @@ func Parse(format, str string) Result {
 					b, err := parseBool(format[i+1:], str[strOffset+i-1:])
 					if err != nil {
 						return result{
-							err: errors.Wrapf(err, "parseInteger(%s,%s) failed",
+							err: errors.Wrapf(err, "parseBool(%s,%s) failed",
 								format[i:], str[strOffset+i-1:]),
 						}
 					}

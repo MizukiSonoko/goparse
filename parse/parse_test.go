@@ -709,6 +709,12 @@ func TestParse_boolean(t *testing.T) {
 			var res bool
 			err := goparse.Parse(format, str).Insert(&res)
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+
+			if !strings.Contains(err.Error(), "parseBool") {
+				t.Errorf("Parse error should contain %s, but it's %s",
+					"parseBool", err.Error())
+
+			}
 		})
 
 		t.Run("empty format", func(t *testing.T) {
