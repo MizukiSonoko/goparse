@@ -390,7 +390,38 @@ func Parse(format, str string) Result {
 					i += 2
 					goto formatLoop
 				case 'v':
-					// first arguments except format
+					{
+						n, err := parseInteger(format[i+1:], str[strOffset+i-1:], 10)
+						if err == nil {
+							strOffset += len(strconv.Itoa(n)) - 2
+							res.values = append(res.values, value{
+								reflect.Int, n})
+							i += 2
+							goto formatLoop
+						}
+					}
+					{
+						b, err := parseBool(format[i+1:], str[strOffset+i-1:])
+						if err == nil {
+							strOffset += len(strconv.FormatBool(b)) - 2
+							res.values = append(res.values, value{
+								reflect.Bool, b})
+							i += 2
+							goto formatLoop
+						}
+					}
+					{
+						f, err := parseFloat(format[i+1:], str[strOffset+i-1:])
+						if err == nil {
+							offset, _ := parseString(format[i+1:], str[strOffset+i-1:])
+
+							strOffset += len(offset) - 2
+							res.values = append(res.values, value{
+								reflect.Float64, f})
+							i += 2
+							goto formatLoop
+						}
+					}
 					s, err := parseString(format[i+1:], str[strOffset+i-1:])
 					if err != nil {
 						return result{
@@ -398,42 +429,45 @@ func Parse(format, str string) Result {
 								format[i:], str[strOffset+i-1:]),
 						}
 					}
-					if s[0] != '{' || s[len(s)-1] != '}' {
-						return result{
-							err: errors.Wrapf(err, "invalid string(%s) for %%v, %%v accepts \"{...}\"",
-								s),
+
+					if s[0] == '{' && s[len(s)-1] == '}' {
+						slice := strings.Split(s[1:len(s)-1], " ")
+						attrs := make([]interface{}, 0, len(slice))
+						for _, attr := range slice {
+
+							attrI, err := strconv.ParseInt(attr, 10, 0)
+							if err == nil {
+								attrs = append(attrs, attrI)
+								continue
+							}
+
+							attrB, err := strconv.ParseBool(attr)
+							if err == nil {
+								attrs = append(attrs, attrB)
+								continue
+							}
+
+							attrF, err := strconv.ParseFloat(attr, 0)
+							if err == nil {
+								attrs = append(attrs, attrF)
+								continue
+							}
+
+							attrs = append(attrs, attr)
 						}
+
+						strOffset += len(s) - 2
+						res.values = append(res.values, value{
+							reflect.Struct, attrs})
+						i += 2
+						goto formatLoop
+					} else {
+						strOffset += len(s) - 2
+						res.values = append(res.values, value{
+							reflect.String, s})
+						i += 2
+						goto formatLoop
 					}
-					slice := strings.Split(s[1:len(s)-1], " ")
-					attrs := make([]interface{}, 0, len(slice))
-					for _, attr := range slice {
-
-						attrI, err := strconv.ParseInt(attr, 10, 0)
-						if err == nil {
-							attrs = append(attrs, attrI)
-							continue
-						}
-
-						attrB, err := strconv.ParseBool(attr)
-						if err == nil {
-							attrs = append(attrs, attrB)
-							continue
-						}
-
-						attrF, err := strconv.ParseFloat(attr, 0)
-						if err == nil {
-							attrs = append(attrs, attrF)
-							continue
-						}
-
-						attrs = append(attrs, attr)
-					}
-
-					strOffset += len(s) - 2
-					res.values = append(res.values, value{
-						reflect.Struct, attrs})
-					i += 2
-					goto formatLoop
 				}
 			}
 		}
