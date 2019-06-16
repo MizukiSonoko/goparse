@@ -4,12 +4,11 @@ package goparse
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"math"
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 type Result interface {
@@ -172,15 +171,41 @@ func assign(dest interface{}, src value) error {
 	case reflect.Struct:
 		rt := reflect.ValueOf(dest)
 		for i, val := range src.value.([]interface{}) {
+			f := reflect.Indirect(rt).Field(i)
+			if !f.CanSet() {
+				return fmt.Errorf("target struct contains not exposed member")
+			}
 			switch v := val.(type) {
 			case string:
-				reflect.Indirect(rt).Field(i).SetString(v)
+				if f.Type() != reflect.TypeOf(v) {
+					return fmt.Errorf(
+						"invalid type expected: string, actual:%s",
+						f.Type().String())
+				}
+				f.SetString(v)
 			case int64:
-				reflect.Indirect(rt).Field(i).SetInt(v)
+				if f.Kind() != reflect.Int &&
+					f.Kind() != reflect.Int32 &&
+					f.Kind() != reflect.Int64 {
+					return fmt.Errorf(
+						"invalid type expected: int, actual:%s",
+						f.Type().String())
+				}
+				f.SetInt(v)
 			case float64:
-				reflect.Indirect(rt).Field(i).SetFloat(v)
+				if f.Type() != reflect.TypeOf(v) {
+					return fmt.Errorf(
+						"invalid type expected: float, actual:%s",
+						f.Type().String())
+				}
+				f.SetFloat(v)
 			case bool:
-				reflect.Indirect(rt).Field(i).SetBool(v)
+				if f.Type() != reflect.TypeOf(v) {
+					return fmt.Errorf(
+						"invalid type expected: bool, actual:%s",
+						f.Type().String())
+				}
+				f.SetBool(v)
 			}
 		}
 		return nil
