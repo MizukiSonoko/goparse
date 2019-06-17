@@ -193,7 +193,8 @@ func assign(dest interface{}, src value) error {
 				}
 				f.SetInt(v)
 			case float64:
-				if f.Type() != reflect.TypeOf(v) {
+				if f.Kind() != reflect.Float32 &&
+					f.Kind() != reflect.Float64 {
 					return fmt.Errorf(
 						"invalid type expected: float, actual:%s",
 						f.Type().String())

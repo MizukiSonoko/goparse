@@ -841,13 +841,46 @@ func TestParse_Any(t *testing.T) {
 		}
 	})
 
-	t.Run("format contains %v, but struct has invalid type", func(t *testing.T) {
+	t.Run("format contains %v, but struct has invalid type int to bool", func(t *testing.T) {
 		type sample struct {
-			Name  int
 			Value bool
 		}
 		format := "sample %v"
-		str := "sample {Hello 123}"
+		str := "sample {123}"
+		var res sample
+		err := goparse.Parse(format, str).Insert(&res)
+		if err == nil {
+			t.Fatalf("Parse returns nil err")
+		}
+		if !strings.Contains(err.Error(), "invalid type") {
+			t.Errorf("err should contain %s, but it's %s",
+				"invalid type", err.Error())
+		}
+	})
+
+	t.Run("format contains %v, but struct has invalid type string to bool", func(t *testing.T) {
+		type sample struct {
+			Value bool
+		}
+		format := "sample %v"
+		str := "sample {Hello}"
+		var res sample
+		err := goparse.Parse(format, str).Insert(&res)
+		if err == nil {
+			t.Fatalf("Parse returns nil err")
+		}
+		if !strings.Contains(err.Error(), "invalid type") {
+			t.Errorf("err should contain %s, but it's %s",
+				"invalid type", err.Error())
+		}
+	})
+
+	t.Run("format contains %v, but struct has invalid type string to float", func(t *testing.T) {
+		type sample struct {
+			Value float32
+		}
+		format := "sample %v"
+		str := "sample {Hello}"
 		var res sample
 		err := goparse.Parse(format, str).Insert(&res)
 		if err == nil {
