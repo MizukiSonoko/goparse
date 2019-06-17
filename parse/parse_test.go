@@ -848,6 +848,62 @@ func TestParse_Any(t *testing.T) {
 				"invalid type", err.Error())
 		}
 	})
+
+	t.Run("format contains %v, it has string", func(t *testing.T) {
+		format := "sample %v"
+		str := "sample Hello"
+		var res string
+		err := goparse.Parse(format, str).Insert(&res)
+		if err != nil {
+			t.Fatalf("Parse failed err:%s", err)
+		}
+		if res != "Hello" {
+			t.Errorf("res is %s, but wants %s",
+				res, "Hello")
+		}
+	})
+
+	t.Run("format contains %v, it has int", func(t *testing.T) {
+		format := "sample %v"
+		str := "sample 123"
+		var res int
+		err := goparse.Parse(format, str).Insert(&res)
+		if err != nil {
+			t.Fatalf("Parse failed err:%s", err)
+		}
+		if res != 123 {
+			t.Errorf("res is %d, but wants %d",
+				res, 123)
+		}
+	})
+
+	t.Run("format contains %v, it has float", func(t *testing.T) {
+		format := "sample %v"
+		str := "sample 123.456"
+		var res float64
+		err := goparse.Parse(format, str).Insert(&res)
+		if err != nil {
+			t.Fatalf("Parse failed err:%s", err)
+		}
+		if res != 123.456 {
+			t.Errorf("res is %f, but wants %f",
+				res, 123.456)
+		}
+	})
+
+	t.Run("format contains %v, it has bool", func(t *testing.T) {
+		format := "sample %v"
+		str := "sample true"
+		var res bool
+		err := goparse.Parse(format, str).Insert(&res)
+		if err != nil {
+			t.Fatalf("Parse failed err:%s", err)
+		}
+		if !res {
+			t.Errorf("res is false, but wants true")
+		}
+	})
+
 }
 
 func TestInsertOnly_normal(t *testing.T) {
