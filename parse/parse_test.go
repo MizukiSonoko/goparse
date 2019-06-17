@@ -791,7 +791,7 @@ func TestParse_float(t *testing.T) {
 
 }
 
-func TestParse_Any(t *testing.T) {
+func TestParse_value_struct(t *testing.T) {
 
 	t.Run("format contains %v", func(t *testing.T) {
 		type sample struct {
@@ -841,6 +841,9 @@ func TestParse_Any(t *testing.T) {
 		}
 	})
 
+}
+
+func TestParse_value_struct_invalid_struct_attribute(t *testing.T) {
 	t.Run("format contains %v, but struct has invalid type int to bool", func(t *testing.T) {
 		type sample struct {
 			Value bool
@@ -892,6 +895,9 @@ func TestParse_Any(t *testing.T) {
 		}
 	})
 
+}
+
+func TestParse_value_primitive(t *testing.T) {
 	t.Run("format contains %v, it has string", func(t *testing.T) {
 		format := "sample %v"
 		str := "sample Hello"
@@ -1045,7 +1051,7 @@ func ExampleParse_boolean() {
 	// true
 }
 
-func ExampleParse_JaNumber() {
+func ExampleParse_jaNumber() {
 	format := "塩ラーメン ￥%d円"
 	str := "塩ラーメン ￥409円"
 	var num int

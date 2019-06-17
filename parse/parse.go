@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// Result has two interface. and it's returned by Parse
 type Result interface {
 	// Insert insets format values to dest
 	Insert(dest ...interface{}) error
@@ -108,51 +109,115 @@ type result struct {
 	values []value
 }
 
+func assignString(dest interface{}, src value) error {
+	switch d := dest.(type) {
+	case *string:
+		if d == nil {
+			return fmt.Errorf("destination pointer should not be nil")
+		}
+		*d = src.value.(string)
+		return nil
+	case *[]byte:
+		if d == nil {
+			return fmt.Errorf("destination pointer should not be nil")
+		}
+		*d = []byte(src.value.(string))
+		return nil
+	default:
+		return fmt.Errorf("type mismatch: expected *string,*[]byte, actual %T", d)
+	}
+}
+
+func assignInt(dest interface{}, src value) error {
+	switch d := dest.(type) {
+	case *int:
+		*d = src.value.(int)
+		return nil
+	case *int8:
+		if src.value.(int) > math.MaxInt8 {
+			return fmt.Errorf("overflow: %d is greater than MaxInt8(%d)",
+				src.value.(int), math.MaxInt8)
+		}
+		*d = int8(src.value.(int))
+		return nil
+	case *int32:
+		if src.value.(int) > math.MaxInt32 {
+			return fmt.Errorf("overflow: %d is greater than MaxInt32(%d)",
+				src.value.(int), math.MaxInt32)
+		}
+		*d = int32(src.value.(int))
+		return nil
+	case *int64:
+		// Note: if value is over MaxInt64, strconv.ParseInt failed
+		*d = int64(src.value.(int))
+		return nil
+	default:
+		return fmt.Errorf("type mismatch: expected *int{8,32,64}, actual %T", d)
+	}
+}
+
+func assignStruct(dest interface{}, src value) error {
+	rt := reflect.ValueOf(dest)
+	for i, val := range src.value.([]interface{}) {
+		f := reflect.Indirect(rt).Field(i)
+		if !f.CanSet() {
+			return fmt.Errorf("target struct contains not exposed member")
+		}
+		switch v := val.(type) {
+		case string:
+			if f.Type() != reflect.TypeOf(v) {
+				return fmt.Errorf(
+					"invalid type expected: string, actual:%s",
+					f.Type().String())
+			}
+			f.SetString(v)
+		case int64:
+			if f.Kind() != reflect.Int &&
+				f.Kind() != reflect.Int32 &&
+				f.Kind() != reflect.Int64 {
+				return fmt.Errorf(
+					"invalid type expected: int, actual:%s",
+					f.Type().String())
+			}
+			f.SetInt(v)
+		case float64:
+			if f.Kind() != reflect.Float32 &&
+				f.Kind() != reflect.Float64 {
+				return fmt.Errorf(
+					"invalid type expected: float, actual:%s",
+					f.Type().String())
+			}
+			f.SetFloat(v)
+		case bool:
+			if f.Type() != reflect.TypeOf(v) {
+				return fmt.Errorf(
+					"invalid type expected: bool, actual:%s",
+					f.Type().String())
+			}
+			f.SetBool(v)
+		}
+	}
+	return nil
+}
+
+func assignFloat(dest interface{}, src value) error {
+	switch d := dest.(type) {
+	case *float64:
+		*d = src.value.(float64)
+		return nil
+	case *float32:
+		*d = float32(src.value.(float64))
+		return nil
+	}
+	return nil
+}
+
 func assign(dest interface{}, src value) error {
 	switch src.kind {
 	case reflect.String:
-		switch d := dest.(type) {
-		case *string:
-			if d == nil {
-				return fmt.Errorf("destination pointer should not be nil")
-			}
-			*d = src.value.(string)
-			return nil
-		case *[]byte:
-			if d == nil {
-				return fmt.Errorf("destination pointer should not be nil")
-			}
-			*d = []byte(src.value.(string))
-			return nil
-		default:
-			return fmt.Errorf("type mismatch: expected *string,*[]byte, actual %T", d)
-		}
+		return assignString(dest, src)
 	case reflect.Int:
-		switch d := dest.(type) {
-		case *int:
-			*d = src.value.(int)
-			return nil
-		case *int8:
-			if src.value.(int) > math.MaxInt8 {
-				return fmt.Errorf("overflow: %d is greater than MaxInt8(%d)",
-					src.value.(int), math.MaxInt8)
-			}
-			*d = int8(src.value.(int))
-			return nil
-		case *int32:
-			if src.value.(int) > math.MaxInt32 {
-				return fmt.Errorf("overflow: %d is greater than MaxInt32(%d)",
-					src.value.(int), math.MaxInt32)
-			}
-			*d = int32(src.value.(int))
-			return nil
-		case *int64:
-			// Note: if value is over MaxInt64, strconv.ParseInt failed
-			*d = int64(src.value.(int))
-			return nil
-		default:
-			return fmt.Errorf("type mismatch: expected *int{8,32,64}, actual %T", d)
-		}
+		return assignInt(dest, src)
 	case reflect.Bool:
 		switch d := dest.(type) {
 		case *bool:
@@ -160,56 +225,9 @@ func assign(dest interface{}, src value) error {
 			return nil
 		}
 	case reflect.Float64:
-		switch d := dest.(type) {
-		case *float64:
-			*d = src.value.(float64)
-			return nil
-		case *float32:
-			*d = float32(src.value.(float64))
-			return nil
-		}
+		return assignFloat(dest, src)
 	case reflect.Struct:
-		rt := reflect.ValueOf(dest)
-		for i, val := range src.value.([]interface{}) {
-			f := reflect.Indirect(rt).Field(i)
-			if !f.CanSet() {
-				return fmt.Errorf("target struct contains not exposed member")
-			}
-			switch v := val.(type) {
-			case string:
-				if f.Type() != reflect.TypeOf(v) {
-					return fmt.Errorf(
-						"invalid type expected: string, actual:%s",
-						f.Type().String())
-				}
-				f.SetString(v)
-			case int64:
-				if f.Kind() != reflect.Int &&
-					f.Kind() != reflect.Int32 &&
-					f.Kind() != reflect.Int64 {
-					return fmt.Errorf(
-						"invalid type expected: int, actual:%s",
-						f.Type().String())
-				}
-				f.SetInt(v)
-			case float64:
-				if f.Kind() != reflect.Float32 &&
-					f.Kind() != reflect.Float64 {
-					return fmt.Errorf(
-						"invalid type expected: float, actual:%s",
-						f.Type().String())
-				}
-				f.SetFloat(v)
-			case bool:
-				if f.Type() != reflect.TypeOf(v) {
-					return fmt.Errorf(
-						"invalid type expected: bool, actual:%s",
-						f.Type().String())
-				}
-				f.SetBool(v)
-			}
-		}
-		return nil
+		return assignStruct(dest, src)
 	}
 	return fmt.Errorf("unsupported type %s into type %s",
 		src.kind.String(), reflect.TypeOf(dest).Kind().String())
