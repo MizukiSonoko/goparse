@@ -795,11 +795,13 @@ func TestParse_Any(t *testing.T) {
 
 	t.Run("format contains %v", func(t *testing.T) {
 		type sample struct {
-			Name  string
-			Value int
+			Name    string
+			Value   int
+			Boolean bool
+			Point   float32
 		}
 		format := "sample %v"
-		str := "sample {Hello 123}"
+		str := "sample {Hello 123 true 123.456}"
 		var res sample
 		err := goparse.Parse(format, str).Insert(&res)
 		if err != nil {
@@ -811,12 +813,20 @@ func TestParse_Any(t *testing.T) {
 		if res.Value != 123 {
 			t.Errorf("Value is %d, but want %d", res.Value, 123)
 		}
+		if !res.Boolean {
+			t.Errorf("Boolean is False, but want True")
+		}
+		if res.Point != 123.456 {
+			t.Errorf("Point is %f, but want %f", res.Point, 123.456)
+		}
 	})
 
 	t.Run("format contains %v, but struct has not exposed attribute", func(t *testing.T) {
 		type sample struct {
-			name  string
-			value int
+			name    string
+			value   int
+			boolean bool
+			point   float32
 		}
 		format := "sample %v"
 		str := "sample {Hello 123}"
