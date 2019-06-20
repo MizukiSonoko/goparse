@@ -6,4 +6,11 @@ test:
 cover:
 	go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
+build:
+	go build example/app.go
+
+clean:
+	-rm goparse
+
+
 .PHONY: test cover
