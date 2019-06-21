@@ -6,11 +6,12 @@ test:
 cover:
 	go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
-build:
-	go build example/app.go
+example:
+	cd example; go build  -o crowler crowler.go; ./crowler
 
 clean:
 	-rm goparse
+	-rm example/crowler
 
 
-.PHONY: test cover
+.PHONY: test cover example clean
