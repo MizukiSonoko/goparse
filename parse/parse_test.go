@@ -898,6 +898,7 @@ func TestParse_value_struct_invalid_struct_attribute(t *testing.T) {
 }
 
 func TestParse_value_primitive(t *testing.T) {
+
 	t.Run("format contains %v, it has string", func(t *testing.T) {
 		format := "sample %v"
 		str := "sample Hello"
