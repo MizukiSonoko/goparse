@@ -992,7 +992,7 @@ func TestInsertOnly_normal(t *testing.T) {
 			assert.Error(t, err)
 		})
 
-		t.Run("not number case", func(t *testing.T) {
+		t.Run("not number case (format expects number, but string)", func(t *testing.T) {
 			format := "%d"
 			str := "string"
 			var res int
@@ -1000,7 +1000,7 @@ func TestInsertOnly_normal(t *testing.T) {
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail", format, str)
 		})
 
-		t.Run("type mismatch case", func(t *testing.T) {
+		t.Run("type mismatch case (func expects target arguments is string, but int)", func(t *testing.T) {
 			format := "%s"
 			str := "string"
 			var res int
