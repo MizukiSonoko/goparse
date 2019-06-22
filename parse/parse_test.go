@@ -360,6 +360,23 @@ func TestParse_string_invalid(t *testing.T) {
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
 		})
 	})
+
+	t.Run("Invalid target pointer (nil)", func(t *testing.T) {
+		format := "Hello"
+		str := "noHello"
+		var res *string
+		err := goparse.Parse(format, str).Insert(res)
+		assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+	})
+
+	t.Run("Invalid target pointer (func)", func(t *testing.T) {
+		format := "Hello"
+		str := "noHello"
+		res := func() {}
+		err := goparse.Parse(format, str).Insert(&res)
+		assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+	})
+
 }
 
 func TestParse_integer(t *testing.T) {
@@ -895,9 +912,44 @@ func TestParse_value_struct_invalid_struct_attribute(t *testing.T) {
 		}
 	})
 
+	t.Run("format contains %v, but struct has invalid type float to bool", func(t *testing.T) {
+		type sample struct {
+			Value bool
+		}
+		format := "sample %v"
+		str := "sample {123.45}"
+		var res sample
+		err := goparse.Parse(format, str).Insert(&res)
+		if err == nil {
+			t.Fatalf("Parse returns nil err")
+		}
+		if !strings.Contains(err.Error(), "invalid type") {
+			t.Errorf("err should contain %s, but it's %s",
+				"invalid type", err.Error())
+		}
+	})
+
+	t.Run("format contains %v, but struct has invalid type bool to int", func(t *testing.T) {
+		type sample struct {
+			Value int
+		}
+		format := "sample %v"
+		str := "sample {false}"
+		var res sample
+		err := goparse.Parse(format, str).Insert(&res)
+		if err == nil {
+			t.Fatalf("Parse returns nil err")
+		}
+		if !strings.Contains(err.Error(), "invalid type") {
+			t.Errorf("err should contain %s, but it's %s",
+				"invalid type", err.Error())
+		}
+	})
+
 }
 
 func TestParse_value_primitive(t *testing.T) {
+
 	t.Run("format contains %v, it has string", func(t *testing.T) {
 		format := "sample %v"
 		str := "sample Hello"
@@ -991,7 +1043,7 @@ func TestInsertOnly_normal(t *testing.T) {
 			assert.Error(t, err)
 		})
 
-		t.Run("not number case", func(t *testing.T) {
+		t.Run("not number case (format expects number, but string)", func(t *testing.T) {
 			format := "%d"
 			str := "string"
 			var res int
@@ -999,7 +1051,7 @@ func TestInsertOnly_normal(t *testing.T) {
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail", format, str)
 		})
 
-		t.Run("type mismatch case", func(t *testing.T) {
+		t.Run("type mismatch case (func expects target arguments is string, but int)", func(t *testing.T) {
 			format := "%s"
 			str := "string"
 			var res int
