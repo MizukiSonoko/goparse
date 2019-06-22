@@ -360,6 +360,23 @@ func TestParse_string_invalid(t *testing.T) {
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
 		})
 	})
+
+	t.Run("Invalid target pointer (nil)", func(t *testing.T) {
+		format := "Hello"
+		str := "noHello"
+		var res *string
+		err := goparse.Parse(format, str).Insert(res)
+		assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+	})
+
+	t.Run("Invalid target pointer (func)", func(t *testing.T) {
+		format := "Hello"
+		str := "noHello"
+		res := func() {}
+		err := goparse.Parse(format, str).Insert(&res)
+		assert.Errorf(t, err, "Parse(%s,%s) not failed want fail")
+	})
+
 }
 
 func TestParse_integer(t *testing.T) {
@@ -884,6 +901,40 @@ func TestParse_value_struct_invalid_struct_attribute(t *testing.T) {
 		}
 		format := "sample %v"
 		str := "sample {Hello}"
+		var res sample
+		err := goparse.Parse(format, str).Insert(&res)
+		if err == nil {
+			t.Fatalf("Parse returns nil err")
+		}
+		if !strings.Contains(err.Error(), "invalid type") {
+			t.Errorf("err should contain %s, but it's %s",
+				"invalid type", err.Error())
+		}
+	})
+
+	t.Run("format contains %v, but struct has invalid type float to bool", func(t *testing.T) {
+		type sample struct {
+			Value bool
+		}
+		format := "sample %v"
+		str := "sample {123.45}"
+		var res sample
+		err := goparse.Parse(format, str).Insert(&res)
+		if err == nil {
+			t.Fatalf("Parse returns nil err")
+		}
+		if !strings.Contains(err.Error(), "invalid type") {
+			t.Errorf("err should contain %s, but it's %s",
+				"invalid type", err.Error())
+		}
+	})
+
+	t.Run("format contains %v, but struct has invalid type bool to int", func(t *testing.T) {
+		type sample struct {
+			Value int
+		}
+		format := "sample %v"
+		str := "sample {false}"
 		var res sample
 		err := goparse.Parse(format, str).Insert(&res)
 		if err == nil {
