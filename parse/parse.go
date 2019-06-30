@@ -223,10 +223,9 @@ func assign(dest interface{}, src value) error {
 		return assignFloat(dest, src)
 	case reflect.Struct:
 		return assignStruct(dest, src)
-	default:
-		return fmt.Errorf("unsupported type %s into type %s",
-			src.kind.String(), reflect.TypeOf(dest).Kind().String())
 	}
+	return fmt.Errorf("unsupported type %s into type %s",
+		src.kind.String(), reflect.TypeOf(dest).Kind().String())
 }
 
 func (r result) Insert(dest ...interface{}) error {
