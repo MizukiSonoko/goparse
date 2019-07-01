@@ -257,7 +257,7 @@ func (r result) InsertOnly(index uint, dest interface{}) error {
 
 	if int(index) >= len(r.values) {
 		return fmt.Errorf(
-			"invalid index:%d, format is only %d",
+			"invalid index:%d, format has only %d format specifier",
 			index, len(r.values))
 	}
 
