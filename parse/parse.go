@@ -202,8 +202,9 @@ func assignFloat(dest interface{}, src value) error {
 	case *float32:
 		*d = float32(src.value.(float64))
 		return nil
+	default:
+		return nil
 	}
-	return nil
 }
 
 func assign(dest interface{}, src value) error {
@@ -256,7 +257,7 @@ func (r result) InsertOnly(index uint, dest interface{}) error {
 
 	if int(index) >= len(r.values) {
 		return fmt.Errorf(
-			"invalid index:%d, format is only %d",
+			"invalid index:%d, format has only %d format specifier",
 			index, len(r.values))
 	}
 
