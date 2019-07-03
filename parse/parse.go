@@ -112,15 +112,9 @@ type result struct {
 func assignString(dest interface{}, src value) error {
 	switch d := dest.(type) {
 	case *string:
-		if d == nil {
-			return fmt.Errorf("destination pointer should not be nil")
-		}
 		*d = src.value.(string)
 		return nil
 	case *[]byte:
-		if d == nil {
-			return fmt.Errorf("destination pointer should not be nil")
-		}
 		*d = []byte(src.value.(string))
 		return nil
 	default:
@@ -208,8 +202,9 @@ func assignFloat(dest interface{}, src value) error {
 	case *float32:
 		*d = float32(src.value.(float64))
 		return nil
+	default:
+		return nil
 	}
-	return nil
 }
 
 func assign(dest interface{}, src value) error {
@@ -262,7 +257,7 @@ func (r result) InsertOnly(index uint, dest interface{}) error {
 
 	if int(index) >= len(r.values) {
 		return fmt.Errorf(
-			"invalid index:%d, format is only %d",
+			"invalid index:%d, format has only %d format specifier",
 			index, len(r.values))
 	}
 
@@ -441,13 +436,12 @@ func Parse(format, str string) Result {
 							goto formatLoop
 						}
 					}
-					s, err := parseString(format[i+1:], str[strOffset+i-1:])
-					if err != nil {
-						return result{
-							err: errors.Wrapf(err, "parseString(%s,%s) failed",
-								format[i:], str[strOffset+i-1:]),
-						}
-					}
+					/*
+						Note: this function never returns error.
+							 Because in Parse, check `format[i] != '%' && format[i] != str[strOffset+i]`.
+							 So str must contain format text before '%'
+					*/
+					s, _ := parseString(format[i+1:], str[strOffset+i-1:])
 
 					if s[0] == '{' && s[len(s)-1] == '}' {
 						slice := strings.Split(s[1:len(s)-1], " ")

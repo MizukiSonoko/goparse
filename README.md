@@ -111,6 +111,29 @@ fmt.Println(res.Value)
 // 123
 ```
 
+Of course, it supports primitive.  
+string  
+```go
+format := "sample %v"
+str := "sample Hello"
+var res string
+_ := goparse.Parse(format, str).Insert(&res)
+fmt.Println(res)
+// Output:
+// Hello
+```
+  
+int  
+```go
+format := "sample %v"
+str := "sample 123"
+var res int
+_ := goparse.Parse(format, str).Insert(&res)
+fmt.Println(res)
+// Output:
+// 123
+```
+
 ## Installation
 
 ```sh
