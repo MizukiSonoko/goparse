@@ -1079,7 +1079,7 @@ func ExampleParse() {
 	// World
 }
 
-func ExampleParse_InsertOnly() {
+func ExampleParse_insertOnly() {
 	var greeting, name string
 	result := goparse.Parse("%s, I'm %s.%s", "Hello, I'm MizukiSonoko.")
 	result.InsertOnly(0, &greeting)
