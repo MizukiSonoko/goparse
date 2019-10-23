@@ -15,9 +15,18 @@ This library is inspired by [r1chardj0n3s/parse](https://github.com/r1chardj0n3s
 ```go
 var s string
 err := goparse.Parse("Hello %s", "Hello World").Insert(&s)
+if err != nil{
+    panic(err)
+}
 fmt.Println(s)
 // Output:
 // World
+```
+
+## Installation
+
+```sh
+go get github.com/MizukiSonoko/goparse
 ```
 
 ## Example
@@ -134,12 +143,33 @@ fmt.Println(res)
 // 123
 ```
 
-## Installation
+## Error
 
-```sh
-go get github.com/MizukiSonoko/goparse
+### Invalid type
+
+```go
+format := "Hello %s"
+str := "Hello sonoko"
+var res int // Invalid 
+
+err := goparse.Parse(format, str).Insert(&res)
+assert.Error(t, err)
 ```
 
+### Too ambiguous to invese format   
+
+```go
+format := "%s%s%s"
+str := "abc"
+var res string
+
+err := goparse.Parse(format, str).Insert(&res)
+assert.Error(t, err)
+assert.Contains(t, err.Error(), "ambiguous")
+```
+  
+and more...  
+   
 ## The format 'verbs'
 Cite by https://golang.org/pkg/fmt/
 
