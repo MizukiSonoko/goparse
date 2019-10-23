@@ -112,7 +112,7 @@ type sample struct {
 format := "sample %v"
 str := "sample {Hello 123}"
 var res sample
-_ := goparse.Parse(format, str).Insert(&res)
+_ = goparse.Parse(format, str).Insert(&res)
 fmt.Println(res.Name)
 fmt.Println(res.Value)
 // Output:
@@ -141,6 +141,21 @@ _ := goparse.Parse(format, str).Insert(&res)
 fmt.Println(res)
 // Output:
 // 123
+```
+
+### InsertOnly 
+
+We can retrive specific number characters.  
+```go
+var greeting, name string
+result := goparse.Parse("%s, I'm %s.%s", "Hello, I'm MizukiSonoko.")
+_ = result.InsertOnly(0, &greeting)
+_ = result.InsertOnly(1, &name)
+fmt.Println(greeting)
+fmt.Println(name)
+// Output:
+// Hello
+// MizukiSonoko
 ```
 
 ## Error
