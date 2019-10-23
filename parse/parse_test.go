@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/MizukiSonoko/goparse/parse"
+	goparse "github.com/MizukiSonoko/goparse/parse"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -530,6 +530,16 @@ func TestParse_integer(t *testing.T) {
 			assert.Errorf(t, err, "Parse(%s,%s) not failed want fail", format, str)
 		})
 
+	})
+
+	t.Run("invalid int like %d%d", func(t *testing.T) {
+		format := "%d%d"
+		str := "123"
+		var res int
+
+		err := goparse.Parse(format, str).Insert(&res)
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "ambiguous")
 	})
 
 }
