@@ -4,10 +4,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/MizukiSonoko/goparse/parse"
 	"io/ioutil"
 	"log"
 	"net/http"
+
+	goparse "github.com/MizukiSonoko/goparse/parse"
 )
 
 func main() {
