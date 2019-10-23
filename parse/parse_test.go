@@ -1079,6 +1079,34 @@ func ExampleParse() {
 	// World
 }
 
+func ExampleParse_InsertOnly() {
+	var greeting, name string
+	result := goparse.Parse("%s, I'm %s.%s", "Hello, I'm MizukiSonoko.")
+	result.InsertOnly(0, &greeting)
+	result.InsertOnly(1, &name)
+	fmt.Println(greeting)
+	fmt.Println(name)
+	// Output:
+	// Hello
+	// MizukiSonoko
+}
+
+func ExampleParse_struct() {
+	type sample struct {
+		Name  string
+		Value int
+	}
+	format := "sample %v"
+	str := "sample {Hello 123}"
+	var res sample
+	_ = goparse.Parse(format, str).Insert(&res)
+	fmt.Println(res.Name)
+	fmt.Println(res.Value)
+	// Output:
+	// Hello
+	// 123
+}
+
 func ExampleParse_ja() {
 	format := "水樹素子「%s」。秋穂伊織「%s」"
 	str := "水樹素子「今日は天気が悪いね」。秋穂伊織「そうだね」"
@@ -1123,7 +1151,7 @@ func ExampleParse_jaNumber() {
 	// 409
 }
 
-func ExampleParse_number8() {
+func ExampleParse_numberBase8() {
 	format := "Hello my number is %o"
 	expected := 123
 
@@ -1145,6 +1173,17 @@ func ExampleParse_failedInsertIntToString() {
 	fmt.Println(err.Error())
 	// Output:
 	// assign(src{kind:int,1} => dest[0]) failed err:type mismatch: expected *int{8,32,64}, actual *string
+}
+
+func ExampleParse_failedAmbigurousFormat() {
+	format := "%s%s%s"
+	str := "abc"
+	var res string
+
+	err := goparse.Parse(format, str).Insert(&res)
+	fmt.Println(err.Error())
+	// Output:
+	// invalid format("%s%s%s"). too ambiguous to invese format
 }
 
 func ExampleParse_failed() {

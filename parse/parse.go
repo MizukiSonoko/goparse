@@ -4,11 +4,12 @@ package goparse
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"math"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // Result has two interface. and it's returned by Parse
@@ -16,7 +17,7 @@ type Result interface {
 	// Insert insets format values to dest
 	Insert(dest ...interface{}) error
 
-	// Insert inserts a selected format value to dest
+	// Insert inserts a selected format value to dest, 0-index
 	InsertOnly(index uint, dest interface{}) error
 }
 
